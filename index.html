@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía de Cumplimiento por Departamento</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f9;--panel:#ffffff;--soft:#eceff5;--text:#1f2733;--muted:#586172;--line:#d6dce7;--acc:#0b2a5b;--accs:#e1e8f4;--side:#0b2a5b;
+--ok:#1a7f56;--oks:#dff3ea;--warn:#9a6208;--warns:#fbefd3;--bad:#b42339;--bads:#fbe3e7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1424;--panel:#101d36;--soft:#0b1730;--text:#e7ecf6;--muted:#9aa6bd;--line:#1f3156;--acc:#3b6fd4;--accs:#16294d;--side:#071530;--ok:#4ade9d;--oks:#0f3a2c;--warn:#f5b84a;--warns:#3a2c10;--bad:#fb7185;--bads:#401624}}
+:root[data-theme="dark"]{--bg:#0a1424;--panel:#101d36;--soft:#0b1730;--text:#e7ecf6;--muted:#9aa6bd;--line:#1f3156;--acc:#3b6fd4;--accs:#16294d;--side:#071530;--ok:#4ade9d;--oks:#0f3a2c;--warn:#f5b84a;--warns:#3a2c10;--bad:#fb7185;--bads:#401624}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--panel);z-index:10}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:flex;min-height:100vh}
+aside{width:260px;background:var(--side);color:#fff;border-right:0;padding:16px 12px;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 6px 14px}.logo{width:38px;height:38px;border-radius:11px;background:#fff;color:#0b2a5b;display:grid;place-items:center;font-size:19px}
+.brand b{display:block;font-size:15px;color:#fff}.brand small{color:#a9bde3;font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 8px 2px}.lbl{color:rgba(255,255,255,.6)}
+.dep{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.78)}
+.dep:hover{background:rgba(255,255,255,.1);color:#fff}.dep.on{background:#fff;color:#0b2a5b;font-weight:700}
+.dep .n{font:600 11px ui-monospace,monospace;background:rgba(255,255,255,.14);color:#dbe5f7;padding:2px 8px;border-radius:99px}.dep.on .n{background:#e1e8f4;color:#0b2a5b}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff8a9b;margin-right:6px}
+.glob{margin-top:auto;border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px;background:rgba(255,255,255,.08);color:#fff}.glob .bar{background:rgba(255,255,255,.22)}.glob .bar i{background:#fff}
+.bar{height:8px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--ok)}
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:18px 28px;background:var(--panel);border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:21px}header p{margin:2px 0 0;color:var(--muted);font-size:12px}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}.kpi{border:1px solid var(--line);border-radius:12px;padding:8px 14px;background:var(--soft)}
+.kpi small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}.kpi b{font:700 19px ui-monospace,monospace}
+.wrap{padding:22px 28px;display:flex;flex-direction:column;gap:16px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:12px}.btn:hover{border-color:var(--acc)}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}
+.banner{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}.banner h2{margin:0 0 3px;font-size:18px}.banner p{margin:0;color:var(--muted);font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.search{flex:1 1 280px;max-width:420px;padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+.seg{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:4px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 11px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600}.seg button.on{background:var(--acc);color:#fff}
+.chk{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.na{opacity:.55}.card h3{margin:0;font-size:14.5px;line-height:1.35}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.code{display:inline-block;font:700 11px ui-monospace,monospace;color:var(--acc);background:var(--accs);padding:2px 8px;border-radius:6px;margin-bottom:6px}
+.b{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.b.ok{background:var(--oks);color:var(--ok)}.b.pa{background:var(--warns);color:var(--warn)}.b.no{background:var(--bads);color:var(--bad)}.b.pe{background:var(--soft);color:var(--muted)}
+.fund{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px}.fund small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:2px}
+.meta{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.warn{color:var(--bad);font-weight:700}
+.empty{text-align:center;padding:50px 20px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
+.empty h2{color:var(--text);margin:0 0 6px}
+.mask{position:fixed;inset:0;background:rgba(5,8,18,.6);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.mh{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px}.mh h3{margin:4px 0 0;font-size:17px}
+.mb{padding:18px 20px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.mb h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.it{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:13px;margin-bottom:6px}.it.d{background:var(--oks)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.f2 label,.f1 label{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.f2 input,.f2 select,.f1 input,.f1 textarea{padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--soft);font-weight:400;text-transform:none;letter-spacing:0;color:var(--text)}
+.toast{position:fixed;right:18px;top:calc(18px + env(safe-area-inset-top,0px));background:var(--ok);color:#fff;padding:10px 16px;border-radius:11px;font-weight:600;z-index:90}
+.pw{margin-top:auto;padding:14px 28px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--muted);border-top:1px solid var(--line);background:var(--panel)}
+@media (max-width:820px){.app{flex-direction:column}aside{width:100%;flex-direction:row;overflow-x:auto;align-items:center;border-right:0;border-bottom:1px solid var(--line)}.brand,.lbl,.glob{display:none}.dep{width:auto;white-space:nowrap}.wrap,header{padding:14px}.f2{grid-template-columns:1fr}}
+</style></head>
+<body>
+<div class="app"><aside id="side"></aside><main><header id="head"></header><div class="wrap" id="wrap"></div><footer class="pw">Powered by: C.P. Miguel Angel Galindo</footer></main></div>
+<div id="layer"></div><input type="file" id="file" accept=".xlsx,.xlsm" hidden>
+<script>
+var KEY="cg_guia_v2",S={data:[],depts:[],sel:-1,q:"",f:"ALL",na:false,ed:{},ro:false,upd:"",quiet:false};
+var ST=["Pendiente","Parcial","Cumple","No cumple","N/A"];
+function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function load(){try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);S.data=o.data||[];S.depts=o.depts||[];S.ed=o.ed||{};S.ro=!!o.ro;S.upd=o.upd||""}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({data:S.data,depts:S.depts,ed:S.ed,ro:S.ro,upd:S.upd}))}catch(e){}}
+function toast(m){var d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2600)}
+function iso(v){if(typeof v==="string"&&v.indexOf("T")==10)return v.slice(0,10);if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);return typeof v==="string"?v:""}
+function parse(buf){
+  var wb=XLSX.read(buf,{type:"array",cellDates:true});
+  if(!wb.Sheets.CATALOGO||!wb.Sheets.CONTROL||!wb.Sheets.CONFIG){toast("El archivo no parece la guía v2 (faltan hojas)");return}
+  var rd=function(n,r0){return XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:"",range:r0})};
+  var cat=rd("CATALOGO",4),ctl=rd("CONTROL",4),cfg=rd("CONFIG",2);S.ro=false;S.upd="";build(cat,ctl,cfg)}
+function build(cat,ctl,cfg){var dp=[];
+  for(var k=0;k<6;k++){var nm=cfg[k]&&cfg[k][10];if(nm)dp.push({i:k,n:String(nm)})}
+  var out=[];
+  cat.forEach(function(r,i){if(!r[0])return;var c=ctl[i]||[],ds=[];for(var k=0;k<6;k++)if(r[11+k]==="Sí")ds.push(k);
+    out.push({id:String(r[0]),area:r[1],obl:r[2],fund:r[3],evid:r[4],per:r[5],cond:r[7],orig:r[8],ds:ds,ap:c[4]==="No"?"No":"Sí",
+      est:ST.indexOf(c[6])>-1?c[6]:"Pendiente",resp:c[5]||"",fecha:iso(c[8]),enlace:c[12]||"",obs:c[13]||""})});
+  S.data=out;S.depts=dp;if(!S.ro)S.ed={};if(!dp.some(function(d){return d.i===S.sel}))S.sel=-1;save();render();if(!S.quiet)toast(out.length+" obligaciones cargadas")}
+function get(it){var e=S.ro?{chk:(S.ed[it.id]||{}).chk}:(S.ed[it.id]||{});return {est:e.est||it.est,resp:e.resp!=null?e.resp:it.resp,fecha:e.fecha!=null?e.fecha:it.fecha,enlace:e.enlace!=null?e.enlace:it.enlace,obs:e.obs!=null?e.obs:it.obs,chk:e.chk||{}}}
+function eff(it){return it.ap==="No"?"N/A":get(it).est}
+function days(it){var f=get(it).fecha;if(!f)return null;var t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(f+"T00:00:00")-t)/864e5)}
+function risk(it){var s=eff(it),d=days(it);return s==="No cumple"||(s!=="Cumple"&&s!=="N/A"&&d!==null&&d<0)}
+function score(list){var a=list.filter(function(i){return eff(i)!=="N/A"});if(!a.length)return null;
+  return Math.round(a.reduce(function(s,i){var e=eff(i);return s+(e==="Cumple"?1:e==="Parcial"?.5:0)},0)/a.length*100)}
+function inDept(it){return S.sel<0||it.ds.indexOf(S.sel)>-1}
+function badge(s){var c={"Cumple":"ok","Parcial":"pa","No cumple":"no"}[s]||"pe";return '<span class="b '+c+'">'+esc(s)+'</span>'}
+function render(){
+  var side=document.getElementById("side"),head=document.getElementById("head"),wrap=document.getElementById("wrap");
+  if(!S.data.length){
+    side.innerHTML='<div class="brand"><div class="logo">🛡</div><div><b>Guía de Cumplimiento</b><small>Por departamento</small></div></div>';
+    head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>Consulta lo que aplica a cada departamento y da seguimiento a la evidencia.</p></div>';
+    wrap.innerHTML='<div class="empty"><h2>Conecta tu guía para comenzar</h2><p>Pega la URL de tu aplicación web de Apps Script y tu clave. También puedes cargar el Excel a mano.</p><button class="btn p" id="cn">Conectar con Google Sheets</button> <button class="btn" id="ld">Cargar Excel manual</button></div>';
+    document.getElementById("ld").onclick=function(){document.getElementById("file").click()};return}
+  var all=S.data.filter(function(i){return i.ap!=="No"});
+  var g=score(S.data),h='<div class="brand"><div class="logo">🛡</div><div><b>Guía de Cumplimiento</b><small>Por departamento</small></div></div><div class="lbl">Departamentos</div>';
+  var mk=function(idx,name){var l=S.data.filter(function(i){return idx<0||i.ds.indexOf(idx)>-1});var ap=l.filter(function(i){return i.ap!=="No"});var rk=l.some(risk);
+    return '<button class="dep'+(S.sel===idx?' on':'')+'" data-d="'+idx+'"><span>'+(rk?'<span class="dot"></span>':'')+esc(name)+'</span><span class="n">'+ap.length+'</span></button>'};
+  h+=mk(-1,"Todos");S.depts.forEach(function(d){h+=mk(d.i,d.n)});
+  h+='<div class="glob"><div style="display:flex;justify-content:space-between;font-size:12px;color:#c8d4ea"><span>Cumplimiento global</span><b>'+(g==null?"–":g+"%")+'</b></div><div class="bar"><i style="width:'+(g||0)+'%"></i></div></div>';
+  side.innerHTML=h;
+  var list=S.data.filter(inDept),ap=list.filter(function(i){return i.ap!=="No"}),sc=score(list);
+  var nm=S.sel<0?"Todos los departamentos":S.depts.filter(function(d){return d.i===S.sel})[0].n;
+  head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>Evidencia, responsables y vencimientos por departamento.'+(S.upd?" Última actualización: "+esc(S.upd):"")+'</p></div><div class="kpis"><div class="kpi"><small>Índice</small><b>'+(sc==null?"–":sc+"%")+'</b></div><div class="kpi"><small>Pendientes</small><b>'+ap.filter(function(i){return eff(i)==="Pendiente"}).length+'</b></div><div class="kpi"><small>En riesgo</small><b style="color:var(--bad)">'+ap.filter(risk).length+'</b></div></div>';
+  var fl=list.filter(function(i){
+    var s=eff(i);if(!S.na&&s==="N/A")return false;
+    if(S.f==="Cumple"&&s!=="Cumple")return false;if(S.f==="Pendiente"&&s!=="Pendiente"&&s!=="Parcial")return false;if(S.f==="Riesgo"&&!risk(i))return false;
+    var q=S.q.toLowerCase();return !q||(i.id+" "+i.obl+" "+i.fund+" "+i.area+" "+i.evid).toLowerCase().indexOf(q)>-1});
+  var w='<div class="banner"><h2>'+esc(nm)+'</h2><p>'+ap.length+' obligaciones aplicables de '+list.length+' registradas. Las marcadas N/A quedan fuera del cálculo.</p></div>';
+  w+='<div class="row"><input class="search" id="q" placeholder="Buscar por ID, obligación, norma o evidencia…" value="'+esc(S.q)+'"><div class="seg">';
+  [["ALL","Todas"],["Cumple","Cumplidas"],["Pendiente","Pendientes"],["Riesgo","En riesgo"]].forEach(function(f){w+='<button data-f="'+f[0]+'" class="'+(S.f===f[0]?'on':'')+'">'+f[1]+'</button>'});
+  w+='</div><label class="chk"><input type="checkbox" id="na"'+(S.na?' checked':'')+'> Mostrar N/A</label></div>';
+  w+='<div class="tools"><button class="btn p" id="sy">Actualizar desde Google Sheets</button><button class="btn" id="cn">Conectar</button><button class="btn" id="ld">Cargar Excel manual</button><button class="btn" id="ex">Exportar CONTROL (.xlsx)</button><button class="btn" id="th">Cambiar tema</button><button class="btn" id="rs">Borrar datos del navegador</button></div>';
+  if(!fl.length)w+='<div class="empty"><h2>Sin resultados</h2><p>Ninguna obligación coincide con la búsqueda o el filtro.</p></div>';
+  else{w+='<div class="grid">';fl.forEach(function(i){var e=get(i),d=days(i),s=eff(i);
+    w+='<div class="card'+(s==="N/A"?' na':'')+'"><div class="top"><div><span class="code">'+esc(i.id)+'</span><h3>'+esc(i.obl)+'</h3></div>'+badge(s)+'</div>'
+     +'<div class="fund"><small>Fundamento</small>'+esc(i.fund||"Sin fundamento capturado")+'</div>'
+     +'<div class="meta"><span>'+esc(i.area)+'</span><span>'+esc(e.resp||"Sin responsable")+'</span></div>'
+     +'<div class="meta" style="border:0;padding:0"><span>Periodicidad: '+esc(i.per)+'</span><span'+(risk(i)?' class="warn"':'')+'>'+(e.fecha?(d<0?"Vencida hace "+(-d)+" d":"Vence en "+d+" d"):"Sin fecha")+'</span></div>'
+     +'<button class="btn p" data-o="'+esc(i.id)+'">Ver evidencia y editar</button></div>'});w+='</div>'}
+  wrap.innerHTML=w;
+}
+function evItems(i){return String(i.evid||"").split(/\n|;\s*/).map(function(x){return x.trim()}).filter(Boolean)}
+function openM(id){
+  var it=S.data.filter(function(x){return x.id===id})[0],lay=document.getElementById("layer");
+  var e=get(it),ev=evItems(it);
+  var h='<div class="mask" id="mk"><div class="modal"><div class="mh"><div><span class="code">'+esc(it.id)+'</span> <small style="color:var(--muted)">'+esc(it.area)+'</small><h3>'+esc(it.obl)+'</h3></div><button class="btn" id="cl">Cerrar</button></div><div class="mb">'
+   +'<div class="fund"><small>Fundamento legal</small>'+esc(it.fund||"–")+(it.cond?'<br><small style="margin-top:6px">Aplica si</small>'+esc(it.cond):'')+'</div>'
+   +'<div><h4>Evidencia requerida ('+ev.filter(function(_,k){return e.chk[k]}).length+'/'+ev.length+')</h4>';
+  ev.forEach(function(t,k){h+='<div class="it'+(e.chk[k]?' d':'')+'" data-k="'+k+'"><input type="checkbox"'+(e.chk[k]?' checked':'')+' style="margin-top:2px"><span>'+esc(t)+'</span></div>'});
+  if(!ev.length)h+='<p style="color:var(--muted);font-size:12px;margin:0">Sin evidencia capturada en el catálogo.</p>';
+  h+='</div><div class="f2"><label>Estatus<select id="fe"'+(S.ro?' disabled':'')+'>'+ST.map(function(s){return '<option'+(s===e.est?' selected':'')+'>'+s+'</option>'}).join("")+'</select></label>'
+   +'<label>Fecha de vencimiento<input type="date" id="ff"'+(S.ro?' disabled':'')+' value="'+esc(e.fecha)+'"></label>'
+   +'<label>Responsable<input id="fr"'+(S.ro?' disabled':'')+' value="'+esc(e.resp)+'"></label><label>Enlace a evidencia<input id="fl"'+(S.ro?' disabled':'')+' value="'+esc(e.enlace)+'" placeholder="https://drive.google.com/…"></label></div>'
+   +'<div class="f1"><label>Observaciones<textarea id="fo" rows="3"'+(S.ro?' disabled':'')+'>'+esc(e.obs)+'</textarea></label></div>'
+   +'<p style="margin:0;font-size:11px;color:var(--muted)">'+(S.ro?"Solo lectura: edita en tu Excel, ejecuta la macro de sincronización y pulsa Actualizar. Puedes marcar la evidencia como ayuda local.":"Los cambios se guardan en este navegador. Para llevarlos a tu Excel usa “Exportar CONTROL”.")+'</p></div></div></div>';
+  lay.innerHTML=h;
+  var set=function(k,v){S.ed[id]=S.ed[id]||{};S.ed[id][k]=v;save();render()};
+  document.getElementById("cl").onclick=function(){lay.innerHTML=""};
+  document.getElementById("mk").onclick=function(ev2){if(ev2.target.id==="mk")lay.innerHTML=""};
+  document.getElementById("fe").onchange=function(){set("est",this.value)};
+  document.getElementById("ff").onchange=function(){set("fecha",this.value)};
+  document.getElementById("fr").oninput=function(){set("resp",this.value)};
+  document.getElementById("fl").oninput=function(){set("enlace",this.value)};
+  document.getElementById("fo").oninput=function(){set("obs",this.value)};
+  lay.querySelectorAll(".it").forEach(function(n){n.onclick=function(){var k=n.getAttribute("data-k"),c=Object.assign({},get(it).chk);c[k]=!c[k];S.ed[id]=S.ed[id]||{};S.ed[id].chk=c;save();render();openM(id)}});
+}
+function exportX(){
+  var rows=[["ID","Materia","Obligación","Departamentos","¿Aplica?","Responsable","Estatus","Fecha de vencimiento","Enlace a evidencia","Observaciones"]];
+  S.data.forEach(function(i){var e=get(i);rows.push([i.id,i.area,i.obl,i.ds.map(function(k){var d=S.depts.filter(function(x){return x.i===k})[0];return d?d.n:""}).join(", "),i.ap,e.resp,e.est,e.fecha,e.enlace,e.obs])});
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"CONTROL");
+  XLSX.writeFile(wb,"CONTROL_exportado.xlsx")}
+document.addEventListener("click",function(ev){
+  var t=ev.target.closest("[data-d],[data-f],[data-o],#ld,#ex,#th,#rs,#sy,#cn");if(!t)return;
+  if(t.hasAttribute("data-d")){S.sel=+t.getAttribute("data-d");render()}
+  else if(t.hasAttribute("data-f")){S.f=t.getAttribute("data-f");render()}
+  else if(t.hasAttribute("data-o"))openM(t.getAttribute("data-o"));
+  else if(t.id==="ld")document.getElementById("file").click();
+  else if(t.id==="sy")sync(false);else if(t.id==="cn")connect();else if(t.id==="ex")exportX();
+  else if(t.id==="th"){var r=document.documentElement,d=r.getAttribute("data-theme");var dark=d?d==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.setAttribute("data-theme",dark?"light":"dark")}
+  else if(t.id==="rs"){try{localStorage.removeItem(KEY)}catch(e){}S.data=[];S.depts=[];S.ed={};S.sel=-1;render();toast("Datos borrados de este navegador")}
+});
+document.addEventListener("input",function(ev){if(ev.target.id==="q"){S.q=ev.target.value;var p=ev.target.selectionStart;render();var n=document.getElementById("q");n.focus();n.setSelectionRange(p,p)}});
+document.addEventListener("change",function(ev){if(ev.target.id==="na"){S.na=ev.target.checked;render()}});
+document.getElementById("file").addEventListener("change",function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{parse(r.result)}catch(e){toast("No se pudo leer el archivo")}};r.readAsArrayBuffer(f);this.value=""});
+function cfgGet(){try{return JSON.parse(localStorage.getItem("cg_conn")||"{}")}catch(e){return {}}}
+function sync(q){var c=cfgGet();if(!c.url||!c.tok){connect();return}S.quiet=q;
+  fetch(c.url+(c.url.indexOf("?")>-1?"&":"?")+"token="+encodeURIComponent(c.tok)).then(function(r){return r.json()}).then(function(j){
+    if(j.error){toast("Error: "+j.error);return}
+    S.ro=true;S.upd=j.updated||"";build(j.catalogo.slice(4),j.control.slice(4),j.config.slice(2));S.quiet=false;if(!q)toast("Datos actualizados")
+  }).catch(function(){toast("No se pudo conectar con Google Sheets")})}
+function connect(){var u=prompt("URL de la aplicación web de Apps Script (termina en /exec):",cfgGet().url||"");if(!u)return;var t=prompt("Clave de acceso (token):","");if(!t)return;
+  try{localStorage.setItem("cg_conn",JSON.stringify({url:u.trim(),tok:t.trim()}))}catch(e){}sync(false)}
+load();render();if(cfgGet().url)sync(true);
+</script></body></html>
