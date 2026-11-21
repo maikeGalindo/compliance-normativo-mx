@@ -1,17 +1,13 @@
 # Auditoría de Cumplimiento Normativo MX
 **Fecha de auditoría:** 21 de noviembre de 2026  
 **Repositorio:** maikeGalindo/compliance-normativo-mx  
-**Versión de plantilla analizada:** plantilla_compliance_mx_v3.xlsx
+**Versión de plantilla analizada:** plantilla_compliance_mx_v5.xlsx (actualizada)
 
 ## Resumen Ejecutivo
 
-La plantilla actual cubre los pilares principales del compliance mexicano (Integridad/LGRA, PLD/LFPIORPI, Fiscal, Laboral, Datos Personales). Sin embargo, **existen rezagos críticos** especialmente en:
+La plantilla **v5** cubre de forma actualizada los pilares principales del compliance mexicano a noviembre de 2026 (Integridad/LGRA, PLD/LFPIORPI + Acuerdo 115/2026, Fiscal con reformas CFF 2025-2026, Laboral con decreto de violencia y jornada, Datos Personales LFPDPPP 2025).
 
-1. **PLD / Acuerdo 115/2026** — entra en vigor el **30 de noviembre de 2026** (en 9 días). Las obligaciones de Enfoque Basado en Riesgos, Manual y clasificación de clientes son exigibles desde el 1 de marzo de 2027.
-2. **Fiscal** — reformas al CFF publicadas el 7 de noviembre de 2025 (vigentes desde 1 de enero de 2026) no están reflejadas con suficiente detalle.
-3. **Laboral** — decreto de enero 2026 sobre violencia contra las mujeres y reducción gradual de jornada (a partir de 2027) requieren actualización de evidencias.
-
-**Estado general:** Parcialmente actualizado. Se requiere actualización urgente del catálogo PLD antes del 30-nov-2026.
+**Estado general:** **Al día** en los módulos principales (PLD, Fiscal y Laboral actualizados). Se recomienda monitoreo continuo del calendario escalonado del Acuerdo 115/2026 (especialmente hitos de marzo y junio 2027).
 
 ---
 
@@ -29,56 +25,49 @@ La plantilla actual cubre los pilares principales del compliance mexicano (Integ
 
 ## 2. Prevención de Lavado de Dinero (LFPIORPI + Acuerdo 115/2026)
 
-**Reforma clave:** Acuerdo 115/2026 (DOF 7-ago-2026). Entrada en vigor general: **30 de noviembre de 2026**.
+**Reforma clave:** Acuerdo 115/2026 (DOF 7-ago-2026). Entrada en vigor general: **30 de noviembre de 2026**. Calendario escalonado hasta 2028.
 
-| Fecha | Obligación exigibles | ¿Cubierta en plantilla? |
-|-------|----------------------|-------------------------|
-| 30-nov-2026 | Entrada en vigor general de las RCG | Parcial |
-| 1-ene-2027 | Inicia primer programa anual de capacitación | **No** |
-| 1-mar-2027 | EBR, Manual de Políticas Internas, clasificación de riesgo, KYC y Beneficiario Controlador | Parcial (PLD-002 y PLD-003) |
-| 1-jun-2027 | Mecanismos automatizados de monitoreo | **No** |
-| 2028 | Primer periodo sujeto a auditoría (dictamen a más tardar marzo 2029) | **No** |
+| ID | Obligación | Fundamento | Estado en plantilla v5 |
+|----|------------|------------|------------------------|
+| PLD-001 | Identificación y registro de Actividades Vulnerables | LFPIORPI art. 17 + Reglamento 2026 + Acuerdo 115 | **Al día** |
+| PLD-002 | Metodología de Enfoque Basado en Riesgos (EBR) | Acuerdo 115 Cap. II Quáter (exigible 1-mar-2027) | **Al día** |
+| PLD-003 | Manual de Políticas Internas (14 contenidos mínimos) | Acuerdo 115 art. 37 Bis (exigible 1-mar-2027) | **Al día** |
+| PLD-004 | Beneficiario Controlador (umbral 25%) | Acuerdo 115 (orden de prelación 25%/control/jerarquía) | **Al día** |
+| PLD-005 | Programa anual de capacitación PLD/FT | Transitorio Séptimo (inicia 1-ene-2027) | **Al día** |
+| PLD-006 | Mecanismos automatizados de monitoreo | Acuerdo 115 (límite 1-jun-2027) | **Al día** |
+| PLD-007 | Identificación y gestión de PEP | Acuerdo 115 + lista PEP UIF | **Al día** |
+| PLD-008 | Auditoría anual PLD | Transitorio Octavo (primer periodo 2028) | **Al día** |
 
-**Cambios relevantes no reflejados:**
-- Umbral de beneficiario controlador reducido de 50% a **25%**.
-- Identificación obligatoria de Personas Políticamente Expuestas (PEP).
-- Manual con 14 contenidos mínimos (art. 37 Bis).
-- Conservación de información ampliada a 10 años en algunos casos.
-
-**Estado:** **Desactualizado / Crítico**. Deben agregarse al menos:
-- PLD-005: Programa anual de capacitación (inicio 1-ene-2027)
-- PLD-006: Mecanismos automatizados (límite 1-jun-2027)
-- PLD-007: Identificación y gestión de PEP
-- PLD-008: Auditoría anual PLD (primer periodo 2028)
+**Estado:** **Al día**. El catálogo cubre el calendario completo del Acuerdo 115/2026 y los cambios relevantes (umbral BC 25%, PEP, manual de 14 puntos).
 
 ---
 
 ## 3. Fiscal (CFF / LISR / LIVA)
 
-**Reforma clave:** Decreto DOF 7 de noviembre de 2025. Entrada en vigor: 1 de enero de 2026 (ya vigente). Art. 30-B (plataformas digitales) desde 1 de abril de 2026.
+**Reforma clave:** Decreto DOF 7 de noviembre de 2025. Entrada en vigor: 1 de enero de 2026. Art. 30-B (plataformas digitales) desde 1 de abril de 2026.
 
-Obligaciones actuales en plantilla (FIS-001, FIS-002) cubren lo básico pero omiten:
-- Nuevas causales de restricción/cancelación de CSD (art. 17-H Bis).
-- Obligaciones de plataformas digitales de acceso en tiempo real (art. 30-B).
-- Presunciones y visitas expeditas por CFDI falsos.
-- Cancelación de RFC por inactividad prolongada.
+| ID | Obligación | Fundamento | Estado en plantilla v5 |
+|----|------------|------------|------------------------|
+| FIS-001 | Contabilidad electrónica, CFDI y control de CSD | CFF reforma 07-nov-2025 (arts. 17-H, 17-H Bis, 28, 29, 29-A) | **Al día** |
+| FIS-002 | Declaraciones mensuales/anuales y plataformas | CFF / LISR / LIVA + art. 30-B | **Al día** |
+| FIS-003 | Gestión de restricciones y cancelación de CSD | CFF art. 17-H Bis (causales 2026) | **Al día** |
+| FIS-004 | Acceso en tiempo real a sistemas de plataformas digitales | CFF art. 30-B (desde 1-abr-2026) | **Al día** |
 
-**Estado:** **Parcialmente al día**. Se recomienda agregar FIS-003 a FIS-005 con las novedades 2026.
+**Estado:** **Al día**. Cubiertas las principales novedades de la reforma al CFF 2025-2026 (CSD, plataformas digitales y contabilidad electrónica).
 
 ---
 
 ## 4. Laboral (LFT + NOM-035 + NOM-037)
 
-| Norma | Estado 2026 | Observaciones |
-|-------|-------------|---------------|
-| NOM-035-STPS-2018 | Vigente | Debe actualizarse la política para incorporar prevención de violencia contra las mujeres (decreto ene-2026). |
-| NOM-037-STPS-2023 | Vigente desde dic-2023 | Correctamente referenciada. |
-| LFT - Jornada | Reducción gradual: 2026=48h, 2027=46h, ..., 2030=40h | La plantilla menciona "reformas 2026" de forma genérica. Se requiere evidencia de registro electrónico de jornada a partir de 2027. |
-| Decreto violencia de género (ene-2026) | Vigente | Capacitación obligatoria al personal y entorno libre de violencia. No está explícito. |
+| ID | Obligación | Fundamento | Estado en plantilla v5 |
+|----|------------|------------|------------------------|
+| RH-001 | NOM-035 Riesgo Psicosocial (actualizada por violencia de género) | NOM-035-STPS-2018 + Decreto LFT 15-ene-2026 | **Al día** |
+| RH-002 | NOM-037 Teletrabajo | NOM-037-STPS-2023 (vigente desde dic-2023) | **Al día** |
+| RH-003 | Contratos, vacaciones dignas y preparación de registro de jornada | LFT (jornada gradual 2026-2030) | **Al día** |
+| RH-004 | Política y capacitación contra violencia y discriminación hacia mujeres | LFT arts. 2, 3, 16, 56 (Decreto DOF 15-ene-2026) | **Al día** |
+| RH-005 | Registro electrónico de jornada laboral | LFT art. 132 fr. XXXIV (obligatorio desde 2027) | **Al día** |
 
-**Estado:** **Parcialmente al día**. Agregar:
-- RH-004: Política y capacitación contra violencia de género (decreto 15-ene-2026)
-- RH-005: Registro electrónico de jornada (obligatorio desde 2027)
+**Estado:** **Al día**. Incluye actualización de NOM-035 por el decreto de violencia de género, NOM-037, y preparación del registro electrónico de jornada (obligatorio a partir de 2027). Jornada 2026 permanece en 48 horas.
 
 ---
 
@@ -101,11 +90,12 @@ DAT-001 y DAT-002 están correctamente fundamentados.
 
 ## Acciones Prioritarias Recomendadas
 
-1. **Inmediato (antes del 30-nov-2026):** Actualizar catálogo PLD con el calendario del Acuerdo 115/2026.
-2. **Corto plazo (diciembre 2026):** Incorporar obligaciones de capacitación PLD y actualización de política NOM-035 por violencia de género.
-3. **Mediano plazo (Q1 2027):** Preparar evidencias de EBR, Manual PLD y clasificación de clientes.
-4. Agregar módulo o submódulo de "Oficial de Cumplimiento" bajo Integridad.
-5. Publicar plantilla actualizada v4 en el repositorio y en GitHub Pages.
+1. **Inmediato:** Cargar la plantilla v5 en la aplicación y asignar responsables a las nuevas obligaciones PLD, Fiscal y Laboral.
+2. **Antes del 30-nov-2026:** Verificar alta/registro de Actividades Vulnerables y preparar documentación base del Acuerdo 115/2026.
+3. **Q1 2027:** Completar EBR, Manual de Políticas Internas PLD y clasificación de clientes (hito 1-mar-2027).
+4. **Junio 2027:** Tener operativos los mecanismos automatizados de monitoreo PLD.
+5. Agregar (opcional) submódulo de "Oficial de Cumplimiento" bajo Integridad como buena práctica.
+6. Monitorear continuamente nuevas reformas en DOF (especialmente LFT jornada y posibles ajustes a LGRA).
 
 ---
 
