@@ -1,0 +1,42 @@
+name: Auditoría Normativa Mensual
+
+on:
+  schedule:
+    # Corre el día 1 de cada mes a las 09:00 UTC (03:00 CST)
+    - cron: '0 9 1 * *'
+  workflow_dispatch:  # Permite ejecutarlo manualmente desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl requests python-dateutil
+
+      - name: Run monthly normative audit
+        run: python scripts/update_catalog.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add plantilla_compliance_mx_v5.xlsx AUDITORIA_NORMATIVA_*.md README.md || true
+          if git diff --staged --quiet; then
+            echo "No hay cambios para commitear"
+          else
+            git commit -m "chore: actualización mensual de catálogo normativo $(date +%Y-%m)"
+            git push
+          fi
