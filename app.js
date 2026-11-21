@@ -50,13 +50,18 @@ document.addEventListener("click",function(e){
 });
 $("file").addEventListener("change",function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){parse(new Uint8Array(r.result))};r.readAsArrayBuffer(f);this.value=""});
 
-// Auto-load catalog from GitHub if no data in localStorage
-var CATALOGO_URL = "https://raw.githubusercontent.com/maikeGalindo/compliance-normativo-mx/main/catalogo.xlsx";
+// Auto-load catalog from GitHub JSON if no data in localStorage
+var CATALOGO_URL = "https://raw.githubusercontent.com/maikeGalindo/compliance-normativo-mx/main/catalogo.json";
 function autoLoad(){
   if(S.data.length) return;
   fetch(CATALOGO_URL)
-    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.arrayBuffer(); })
-    .then(function(buf){ parse(new Uint8Array(buf)); toast("Catálogo cargado automáticamente"); })
+    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+    .then(function(json){
+      S.ro=false; S.on=false; S.upd=""; S.ed={};
+      build(json.catalogo.slice(4), json.control.slice(4), json.config.slice(2), (json.aud_fiscal||[]).slice(4));
+      S.sel=-1; S.mat=""; S.mod="dep"; save(); render();
+      toast("Catálogo cargado automáticamente ("+S.data.length+" obligaciones)");
+    })
     .catch(function(e){ console.warn("Auto-load failed:", e); });
 }
 
