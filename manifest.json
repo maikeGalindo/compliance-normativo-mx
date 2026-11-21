@@ -1,0 +1,11 @@
+{
+  "name": "Guía de Cumplimiento por Departamento",
+  "short_name": "Compliance MX",
+  "description": "Panel de seguimiento de cumplimiento normativo por departamento para organizaciones en México.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f9",
+  "theme_color": "#0b2a5b",
+  "lang": "es-MX",
+  "orientation": "any"
+}
