@@ -21,7 +21,7 @@ Aplicación web de una sola página (SPA) para gestionar y dar seguimiento al **
 ## Cómo usarlo
 
 1. Abre `index.html` en el navegador o publícalo con GitHub Pages.
-2. Carga tu archivo Excel de la guía (versión 3) o conecta con tu Apps Script.
+2. Carga tu archivo Excel de la guía (**plantilla_compliance_mx_v5.xlsx** recomendada) o conecta con tu Apps Script.
 3. Selecciona departamentos en la barra lateral.
 4. Actualiza estados, responsables, fechas y evidencias.
 5. Exporta o sincroniza cuando lo necesites.
@@ -44,6 +44,18 @@ Para dominio personalizado: crea un archivo `CNAME` en la raíz con tu dominio y
 | CONFIG     | Configuración de departamentos     |
 | AUD_FISCAL | Auditorías fiscales (opcional)     |
 
+## Plantilla actualizada (v5)
+
+Descarga `plantilla_compliance_mx_v5.xlsx` del repositorio. Incluye obligaciones **al día** a noviembre 2026 para:
+
+- **PLD / LFPIORPI + Acuerdo 115/2026** (EBR, Manual, Beneficiario Controlador 25%, PEP, capacitación, monitoreo automatizado, auditoría).
+- **Fiscal** (reformas CFF 2025-2026: CSD, art. 30-B plataformas digitales).
+- **Laboral** (NOM-035 actualizada por violencia de género, NOM-037, registro electrónico de jornada desde 2027).
+
+## Auditoría normativa
+
+Consulta `AUDITORIA_NORMATIVA_2026.md` para el detalle de normas, reformas y estado de cumplimiento por módulo.
+
 ## Mejoras aplicadas
 
 - Documentación completa.
@@ -52,10 +64,11 @@ Para dominio personalizado: crea un archivo `CNAME` en la raíz con tu dominio y
 - Notificaciones de vencimientos.
 - Registro de auditoría de cambios.
 - Metadatos y theme-color.
+- Plantilla Excel v5 con catálogo actualizado a normas 2026.
+- Auditoría normativa detallada.
 
 ## Próximas mejoras sugeridas
 
-- Plantilla Excel de ejemplo descargable.
 - Exportación a PDF/Excel del estado actual.
 - Roles y permisos más avanzados (con autenticación).
 - Tests automatizados.
