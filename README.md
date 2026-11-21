@@ -13,6 +13,10 @@ Aplicación web de una sola página (SPA) para gestionar y dar seguimiento al **
 - **Tema claro/oscuro**: Soporte nativo y manual.
 - **Almacenamiento local**: Persistencia en el navegador (localStorage).
 - **Responsive**: Funciona en escritorio y móvil.
+- **Notificaciones de vencimientos**: Avisa de obligaciones próximas a vencer (próximos 7 días).
+- **Registro de auditoría**: Log de cambios (quién, cuándo, qué campo, valor anterior/nuevo).
+- **PWA + Offline**: Instalable y funciona sin conexión (Service Worker).
+- **Código modular**: CSS y JS separados para mejor mantenibilidad.
 
 ## Cómo usarlo
 
@@ -21,6 +25,15 @@ Aplicación web de una sola página (SPA) para gestionar y dar seguimiento al **
 3. Selecciona departamentos en la barra lateral.
 4. Actualiza estados, responsables, fechas y evidencias.
 5. Exporta o sincroniza cuando lo necesites.
+
+### Publicar en GitHub Pages
+
+1. Ve a **Settings → Pages** del repositorio.
+2. En **Source** selecciona la rama `main` y carpeta `/ (root)`.
+3. Guarda. En 1-2 minutos estará disponible en:
+   `https://maikeGalindo.github.io/compliance-normativo-mx/`
+
+Para dominio personalizado: crea un archivo `CNAME` en la raíz con tu dominio y configura el DNS.
 
 ## Estructura del Excel esperado
 
@@ -33,17 +46,18 @@ Aplicación web de una sola página (SPA) para gestionar y dar seguimiento al **
 
 ## Mejoras aplicadas
 
-- Documentación completa (este README).
-- Soporte PWA básico (`manifest.json`) para instalación en dispositivos.
-- Metadatos mejorados.
+- Documentación completa.
+- Soporte PWA (`manifest.json` + Service Worker).
+- CSS y JS separados (`styles.css`, `app.js`).
+- Notificaciones de vencimientos.
+- Registro de auditoría de cambios.
+- Metadatos y theme-color.
 
 ## Próximas mejoras sugeridas
 
 - Plantilla Excel de ejemplo descargable.
 - Exportación a PDF/Excel del estado actual.
-- Notificaciones de vencimientos.
-- Roles y permisos más granulares.
-- Separación de CSS/JS para mayor mantenibilidad.
+- Roles y permisos más avanzados (con autenticación).
 - Tests automatizados.
 
 ## Autor
