@@ -42,11 +42,32 @@ function render(){
   var qi=$("q");if(qi){qi.oninput=function(){S.q=this.value;S.page=0;render()}}
 }
 function card(it){var g=get(it),s=eff(it);
-  return '<div class="card"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span></div></div>'}
+  return '<div class="card" data-ac="detail" data-id="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span></div></div>'}
+
+function openDetail(id){
+  var it = S.data.find(function(i){return i.id===id});
+  if(!it) return;
+  var g = get(it);
+  var html = '<div class="mask" id="mask"><div class="modal"><div class="mh"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><button class="close" data-ac="close">×</button></div><div class="mb">';
+  html += '<div><h4>Fundamento</h4><p>'+esc(it.fund||"—")+'</p></div>';
+  html += '<div><h4>Evidencia / Cómo materializar el cumplimiento</h4><p>'+esc(it.evid||"No especificada en el catálogo")+'</p></div>';
+  html += '<div><h4>Periodicidad</h4><p>'+esc(it.per||"—")+'</p></div>';
+  if(it.cond) html += '<div><h4>Condición / Notas</h4><p>'+esc(it.cond)+'</p></div>';
+  html += '<div><h4>Estado actual</h4><p>'+esc(g.est||it.est)+'</p></div>';
+  html += '<div><h4>Responsable</h4><p>'+esc(g.resp||"Sin asignar")+'</p></div>';
+  html += '<div><h4>Fecha límite</h4><p>'+esc(g.fecha||"Sin fecha")+'</p></div>';
+  if(g.enlace) html += '<div><h4>Enlace</h4><p><a href="'+esc(g.enlace)+'" target="_blank">'+esc(g.enlace)+'</a></p></div>';
+  if(g.obs) html += '<div><h4>Observaciones</h4><p>'+esc(g.obs)+'</p></div>';
+  html += '</div></div></div>';
+  document.body.insertAdjacentHTML("beforeend", html);
+}
+
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-ac]");if(!b)return;
   var ac=b.dataset.ac,v=b.dataset.v;
   if(ac==="ld"){$("file").click()}
+  else if(ac==="detail"){openDetail(v)}
+  else if(ac==="close"){var m=document.getElementById("mask");if(m)m.remove()}
   else if(ac==="reload"){S.data=[];localStorage.removeItem(KEY);S.page=0;autoLoad();toast("Actualizando...")}
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";S.page=0;render()}
   else if(ac==="mat"){S.mat=v;S.page=0;render()}
