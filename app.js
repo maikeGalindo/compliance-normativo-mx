@@ -32,7 +32,22 @@ function render(){
   side();var head=$("head"),w=$("wrap");
   if(!S.data.length){head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>Consulta lo que aplica a cada departamento y da seguimiento a la evidencia.</p></div>';
     w.innerHTML='<div class="empty"><h2>Cargando catálogo...</h2><p>Si no carga en unos segundos, toca el botón.</p><button class="btn p" data-ac="reload">Actualizar catálogo</button><br><button class="btn" data-ac="ld">Cargar Excel manual</button></div>';return}
-  var list=S.data.filter(function(i){var r=S.sel<0?"Sí":i.rl[S.sel];return S.mat==="__a"?r==="Apoyo":(r==="Sí")});
+  var list;
+  if(S.mod==="aud"){
+    list = S.af.filter(function(i){return (i.bl||"").toLowerCase().indexOf("aud")>-1 || (i.area||"").toLowerCase().indexOf("aud")>-1});
+    if(!list.length) list = S.data.filter(function(i){return (i.area||"").toLowerCase().indexOf("aud")>-1 || (i.obl||"").toLowerCase().indexOf("auditor")>-1});
+  } else if(S.mod==="fis"){
+    list = S.af.filter(function(i){return (i.bl||"").toLowerCase().indexOf("fisc")>-1 || (i.area||"").toLowerCase().indexOf("fisc")>-1});
+    if(!list.length) list = S.data.filter(function(i){return (i.area||"").toLowerCase().indexOf("fisc")>-1 || (i.obl||"").toLowerCase().indexOf("fiscal")>-1});
+  } else if(S.mat==="__a"){
+    // Apoyo a otras áreas: show items marked as Apoyo for the selected dept (or any if Todos)
+    list = S.data.filter(function(i){
+      if(S.sel<0) return Object.values(i.rl).some(function(v){return v==="Apoyo"});
+      return i.rl[S.sel]==="Apoyo";
+    });
+  } else {
+    list = S.data.filter(function(i){var r=S.sel<0?"Sí":i.rl[S.sel];return r==="Sí"});
+  }
   if(S.f!=="ALL")list=list.filter(function(i){return eff(i)===S.f});
   if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id+" "+i.fund).toLowerCase().indexOf(q)>-1})}
   var total=list.length,start=S.page*S.pageSize,page=list.slice(start,start+S.pageSize),pages=Math.ceil(total/S.pageSize)||1;
@@ -71,7 +86,7 @@ document.addEventListener("click",function(e){
   else if(ac==="reload"){S.data=[];localStorage.removeItem(KEY);S.page=0;autoLoad();toast("Actualizando...")}
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";S.page=0;render()}
   else if(ac==="mat"){S.mat=v;S.page=0;render()}
-  else if(ac==="mod"){S.mod=v;render()}
+  else if(ac==="mod"){S.mod=v;S.mat="";S.page=0;render()}
   else if(ac==="menu"){S.menu=!S.menu;render()}
   else if(ac==="f"){S.f=v;S.page=0;render()}
   else if(ac==="pg"){S.page=+v;render()}
