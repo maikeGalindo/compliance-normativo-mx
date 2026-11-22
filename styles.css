@@ -67,3 +67,8 @@ h1{margin:0;font-size:21px}header p{margin:2px 0 0;color:var(--muted);font-size:
 .empty { color: #1a1a1a !important; background: #fff !important; }
 .empty h2 { color: #0b2a5b !important; }
 
+
+.pager{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;font-size:13px}
+.pager button{padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);cursor:pointer}
+.pager button:disabled{opacity:.4;cursor:default}
+
