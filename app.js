@@ -63,7 +63,11 @@ function autoLoad(){
       S.sel=-1; S.mat=""; S.mod="dep"; save(); render();
       toast("Catálogo cargado automáticamente ("+S.data.length+" obligaciones)");
     })
-    .catch(function(e){ console.warn("Auto-load failed:", e); });
+    .catch(function(e){ 
+      console.warn("Auto-load failed:", e); 
+      var w = document.getElementById("wrap");
+      if(w) w.innerHTML = '<div class="empty"><h2>No se pudo cargar el catálogo</h2><p>'+esc(String(e))+'</p><button class="btn p" data-ac="reload">Reintentar</button><br><button class="btn" data-ac="ld">Cargar Excel manual</button></div>';
+    });
 }
 
 load();render();
