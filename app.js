@@ -1,7 +1,7 @@
 var KEY="cg_v3",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false};
 var ST=["Pendiente","Parcial","Cumple","No cumple","N/A"];
 function $(i){return document.getElementById(i)}
-function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return {"&":"&","<":"<",">":">","\"":"""}[c]})}
+function esc(t){return String(t==null?"":t).replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""")}
 function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||"{}");["data","depts","af","ed","upd"].forEach(function(k){if(o[k])S[k]=o[k]});S.ro=!!o.ro;S.on=!!o.on;S.por=localStorage.getItem("cg_por")||""}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({data:S.data,depts:S.depts,af:S.af,ed:S.ed,upd:S.upd,ro:S.ro,on:S.on}))}catch(e){}}
 function toast(m){var d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2800)}
