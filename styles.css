@@ -1,3 +1,6 @@
+/* Force light theme for reliability */
+:root { color-scheme: light; }
+
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#f3f5f9;--panel:#ffffff;--soft:#eceff5;--text:#1f2733;--muted:#586172;--line:#d6dce7;--acc:#0b2a5b;--accs:#e1e8f4;--side:#0b2a5b;
 --ok:#1a7f56;--oks:#dff3ea;--warn:#9a6208;--warns:#fbefd3;--bad:#b42339;--bads:#fbe3e7}
@@ -61,3 +64,6 @@ h1{margin:0;font-size:21px}header p{margin:2px 0 0;color:var(--muted);font-size:
 .menu{position:absolute;bottom:40px;left:0;width:250px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:40}
 .menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px}
 .menu button:hover{background:var(--soft)}
+.empty { color: #1a1a1a !important; background: #fff !important; }
+.empty h2 { color: #0b2a5b !important; }
+

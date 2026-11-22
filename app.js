@@ -27,6 +27,7 @@ function side(){var h='<div class="brand"><div class="logo">⚖️</div><div><b>
   if(S.menu)h+='<div class="menu"><button data-ac="reload">Actualizar catálogo</button><button data-ac="ld">Cargar Excel</button><button data-ac="theme">Tema</button><button data-ac="ro">'+(S.ro?"Habilitar edición":"Solo lectura")+'</button></div>';
   $("side").innerHTML=h}
 function render(){
+  var init=document.getElementById("initial"); if(init) init.remove();
   side();var head=$("head"),w=$("wrap");
   if(!S.data.length){head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>Consulta lo que aplica a cada departamento y da seguimiento a la evidencia.</p></div>';
     w.innerHTML='<div class="empty"><h2>Cargando catálogo...</h2><p>Si no carga en unos segundos, toca el botón de abajo.</p><button class="btn p" data-ac="reload" style="margin:8px">Actualizar catálogo</button><br><button class="btn" data-ac="ld">Cargar Excel manual</button></div>';return}
