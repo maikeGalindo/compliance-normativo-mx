@@ -1,4 +1,4 @@
-const CACHE_NAME = 'compliance-mx-v1';
+const CACHE_NAME = 'compliance-mx-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -23,6 +23,13 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Network-first for app.js and catalogo.json so updates appear faster
+  if (e.request.url.includes('app.js') || e.request.url.includes('catalogo.json')) {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
       if (e.request.method === 'GET' && resp.ok) {

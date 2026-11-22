@@ -24,12 +24,12 @@ function side(){var h='<div class="brand"><div class="logo">⚖️</div><div><b>
   h+='<div class="sub"><button class="dep'+(S.mat==="__a"?" on":"")+'" data-ac="mat" data-v="__a">Apoyo a otras áreas</button></div>';
   h+='<div class="lbl">Módulos</div><button class="dep'+(S.mod==="aud"?" on":"")+'" data-ac="mod" data-v="aud">Auditoría</button><button class="dep'+(S.mod==="fis"?" on":"")+'" data-ac="mod" data-v="fis">Fiscal</button>';
   h+='<div class="gear"><button class="gb" data-ac="menu">⚙️</button><span class="rol">'+(S.ro?"Solo lectura":"Edición")+'</span></div>';
-  if(S.menu)h+='<div class="menu"><button data-ac="ld">Cargar Excel</button><button data-ac="theme">Tema</button><button data-ac="ro">'+(S.ro?"Habilitar edición":"Solo lectura")+'</button></div>';
+  if(S.menu)h+='<div class="menu"><button data-ac="reload">Actualizar catálogo</button><button data-ac="ld">Cargar Excel</button><button data-ac="theme">Tema</button><button data-ac="ro">'+(S.ro?"Habilitar edición":"Solo lectura")+'</button></div>';
   $("side").innerHTML=h}
 function render(){
   side();var head=$("head"),w=$("wrap");
   if(!S.data.length){head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>Consulta lo que aplica a cada departamento y da seguimiento a la evidencia.</p></div>';
-    w.innerHTML='<div class="empty"><h2>Cargando catálogo...</h2><p>El catálogo se carga automáticamente desde el repositorio. Si no aparece en unos segundos, usa el menú para cargar un Excel manualmente.</p><button class="btn p" data-ac="ld">Cargar Excel</button></div>';return}
+    w.innerHTML='<div class="empty"><h2>Cargando catálogo...</h2><p>Si no carga en unos segundos, toca el botón de abajo.</p><button class="btn p" data-ac="reload" style="margin:8px">Actualizar catálogo</button><br><button class="btn" data-ac="ld">Cargar Excel manual</button></div>';return}
   var list=S.data.filter(function(i){var r=S.sel<0?"Sí":i.rl[S.sel];return S.mat==="__a"?r==="Apoyo":(r==="Sí")});
   head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>Evidencia, responsables y vencimientos.</p></div>';
   w.innerHTML='<div class="row"><input class="search" id="q" placeholder="Buscar obligación..." value="'+esc(S.q)+'"><div class="seg"><button data-ac="f" data-v="ALL" class="'+(S.f==="ALL"?"on":"")+'">Todas</button><button data-ac="f" data-v="Pendiente" class="'+(S.f==="Pendiente"?"on":"")+'">Pendientes</button><button data-ac="f" data-v="Cumple" class="'+(S.f==="Cumple"?"on":"")+'">Cumple</button></div></div><div class="grid">'+list.map(card).join("")+'</div>';
@@ -40,6 +40,7 @@ document.addEventListener("click",function(e){
   var b=e.target.closest("[data-ac]");if(!b)return;
   var ac=b.dataset.ac,v=b.dataset.v;
   if(ac==="ld"){$("file").click()}
+  else if(ac==="reload"){S.data=[];localStorage.removeItem(KEY);autoLoad();toast("Actualizando catálogo...");}
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";render()}
   else if(ac==="mat"){S.mat=v;render()}
   else if(ac==="mod"){S.mod=v;render()}
@@ -51,7 +52,7 @@ document.addEventListener("click",function(e){
 $("file").addEventListener("change",function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){parse(new Uint8Array(r.result))};r.readAsArrayBuffer(f);this.value=""});
 
 // Auto-load catalog from GitHub JSON if no data in localStorage
-var CATALOGO_URL = "https://raw.githubusercontent.com/maikeGalindo/compliance-normativo-mx/main/catalogo.json";
+var CATALOGO_URL = "https://raw.githubusercontent.com/maikeGalindo/compliance-normativo-mx/main/catalogo.json?t=" + Date.now();
 function autoLoad(){
   if(S.data.length) return;
   fetch(CATALOGO_URL)
