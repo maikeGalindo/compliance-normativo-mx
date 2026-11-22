@@ -42,7 +42,7 @@ function render(){
   var qi=$("q");if(qi){qi.oninput=function(){S.q=this.value;S.page=0;render()}}
 }
 function card(it){var g=get(it),s=eff(it);
-  return '<div class="card" data-ac="detail" data-id="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span></div></div>'}
+  return '<div class="card" data-ac="detail" data-v="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span></div></div>'}
 
 function openDetail(id){
   var it = S.data.find(function(i){return i.id===id});
