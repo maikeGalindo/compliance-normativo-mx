@@ -85,3 +85,21 @@ h1{margin:0;font-size:21px}header p{margin:2px 0 0;color:var(--muted);font-size:
 .card{cursor:pointer}
 .card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
 
+
+/* Validation indicator in header */
+.val-summary{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.val-dot{width:10px;height:10px;border-radius:50%;background:var(--warn);display:inline-block}
+.val-dot.ok{background:var(--ok)}
+.val-dot.bad{background:var(--bad)}
+
+/* Validation checkbox in detail */
+.val-box{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--soft);border-radius:10px;cursor:pointer;user-select:none}
+.val-box input{width:18px;height:18px;cursor:pointer}
+.val-box.checked{background:var(--oks);color:var(--ok)}
+
+/* Audit selection */
+.audit-sel{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.audit-sel input{cursor:pointer}
+.audit-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.audit-bar button{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:12px}
+.audit-bar button.p{background:var(--acc);color:#fff;border-color:var(--acc)}

@@ -1,4 +1,4 @@
-var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30};
+var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30,auditSel:{}};
 var ST=["Pendiente","Parcial","Cumple","No cumple","N/A"];
 function $(i){return document.getElementById(i)}
 function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -17,7 +17,7 @@ function build(cat,ctl,cfg,af){var dp=[],out=[],k;
   S.data=out;S.depts=dp;
   S.af=(af||[]).filter(function(r){return r[0]}).map(function(r){return {id:String(r[0]),bl:r[1],obl:r[2],pide:r[3],fund:r[4],per:r[5],area:r[6],fmt:r[7],est:r[8]||"Pendiente",resp:r[9]||"",fecha:(r[10]||"").toString().slice(0,10),enlace:r[11]||"",obs:r[12]||"",ap:"Sí",af:1}});
   if(!dp.some(function(d){return d.i===S.sel}))S.sel=-1}
-function get(it){var e=S.ed[it.id]||{};return {est:e.est||it.est,resp:e.resp!=null?e.resp:it.resp,fecha:e.fecha!=null?e.fecha:it.fecha,enlace:e.enlace!=null?e.enlace:it.enlace,obs:e.obs!=null?e.obs:it.obs}}
+function get(it){var e=S.ed[it.id]||{};return {est:e.est||it.est,resp:e.resp!=null?e.resp:it.resp,fecha:e.fecha!=null?e.fecha:it.fecha,enlace:e.enlace!=null?e.enlace:it.enlace,obs:e.obs!=null?e.obs:it.obs,validated:!!e.validated}}
 function eff(it){return it.ap==="No"?"N/A":get(it).est}
 function side(){var h='<div class="brand"><div class="logo">⚖️</div><div><b>Cumplimiento</b><small>Normativo MX</small></div></div><div class="lbl">Departamentos</div>';
   h+='<button class="dep'+(S.sel<0&&S.mod==="dep"?" on":"")+'" data-ac="sel" data-v="-1"><span>Todos</span><span class="n">'+S.data.length+'</span></button>';
@@ -34,11 +34,15 @@ function render(){
     w.innerHTML='<div class="empty"><h2>Cargando catálogo...</h2><p>Si no carga en unos segundos, toca el botón.</p><button class="btn p" data-ac="reload">Actualizar catálogo</button><br><button class="btn" data-ac="ld">Cargar Excel manual</button></div>';return}
   var list;
   if(S.mod==="aud"){
-    list = S.af.filter(function(i){return (i.bl||"").toLowerCase().indexOf("aud")>-1 || (i.area||"").toLowerCase().indexOf("aud")>-1});
-    if(!list.length) list = S.data.filter(function(i){return (i.area||"").toLowerCase().indexOf("aud")>-1 || (i.obl||"").toLowerCase().indexOf("auditor")>-1});
+    // Auditoría interna: show all obligations with selection capability
+    list = S.data.slice();
   } else if(S.mod==="fis"){
-    list = S.af.filter(function(i){return (i.bl||"").toLowerCase().indexOf("fisc")>-1 || (i.area||"").toLowerCase().indexOf("fisc")>-1});
-    if(!list.length) list = S.data.filter(function(i){return (i.area||"").toLowerCase().indexOf("fisc")>-1 || (i.obl||"").toLowerCase().indexOf("fiscal")>-1});
+    // Fiscal: obligations typically reviewed by authorities/firms
+    var fiscalKeywords = ["fiscal","impuesto","isr","iva","sat","declaracion","cfdi","comprobante","contable","dictamen","retencion","nomina","imss","infonavit","isn"];
+    list = S.data.filter(function(i){
+      var t = (i.obl+" "+i.fund+" "+i.area).toLowerCase();
+      return fiscalKeywords.some(function(k){return t.indexOf(k)>-1});
+    });
   } else if(S.mat==="__a"){
     // Apoyo a otras áreas: show items marked as Apoyo for the selected dept (or any if Todos)
     list = S.data.filter(function(i){
@@ -51,13 +55,23 @@ function render(){
   if(S.f!=="ALL")list=list.filter(function(i){return eff(i)===S.f});
   if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id+" "+i.fund).toLowerCase().indexOf(q)>-1})}
   var total=list.length,start=S.page*S.pageSize,page=list.slice(start,start+S.pageSize),pages=Math.ceil(total/S.pageSize)||1;
-  head.innerHTML='<div><h1>Panel de cumplimiento normativo</h1><p>'+total+' obligaciones</p></div>';
+  var validated=S.data.filter(function(i){return get(i).validated}).length;
+  var valPct=S.data.length?Math.round(validated/S.data.length*100):0;
+  var valClass=valPct>=80?"ok":(valPct>=40?"":"bad");
+  head.innerHTML='<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div><h1>Panel de cumplimiento normativo</h1><p>'+total+' obligaciones</p></div><div class="val-summary"><span class="val-dot '+valClass+'"></span><span>'+validated+' / '+S.data.length+' validadas ('+valPct+'%)</span></div></div>';
   var pager=pages>1?'<div class="pager"><button data-ac="pg" data-v="'+(S.page-1)+'"'+(S.page<=0?' disabled':'')+'>←</button><span>'+(S.page+1)+' / '+pages+'</span><button data-ac="pg" data-v="'+(S.page+1)+'"'+(S.page>=pages-1?' disabled':'')+'>→</button></div>':'';
-  w.innerHTML='<div class="row"><input class="search" id="q" placeholder="Buscar obligación..." value="'+esc(S.q)+'"><div class="seg"><button data-ac="f" data-v="ALL" class="'+(S.f==="ALL"?"on":"")+'">Todas</button><button data-ac="f" data-v="Pendiente" class="'+(S.f==="Pendiente"?"on":"")+'">Pendientes</button><button data-ac="f" data-v="Cumple" class="'+(S.f==="Cumple"?"on":"")+'">Cumple</button></div></div>'+pager+'<div class="grid">'+page.map(card).join("")+'</div>'+pager;
+  var auditBar="";
+  if(S.mod==="aud"){
+    var selCount=Object.keys(S.auditSel||{}).length;
+    auditBar='<div class="audit-bar"><span style="font-size:13px;font-weight:600">Auditoría interna</span><button data-ac="audselall">Seleccionar visibles</button><button data-ac="audclear">Limpiar</button><button class="p" data-ac="audreport"'+(selCount?" ":" disabled")+'>Generar reporte ('+selCount+')</button></div>';
+  }
+  w.innerHTML=auditBar+'<div class="row"><input class="search" id="q" placeholder="Buscar obligación..." value="'+esc(S.q)+'"><div class="seg"><button data-ac="f" data-v="ALL" class="'+(S.f==="ALL"?"on":"")+'">Todas</button><button data-ac="f" data-v="Pendiente" class="'+(S.f==="Pendiente"?"on":"")+'">Pendientes</button><button data-ac="f" data-v="Cumple" class="'+(S.f==="Cumple"?"on":"")+'">Cumple</button></div></div>'+pager+'<div class="grid">'+page.map(card).join("")+'</div>'+pager;
   var qi=$("q");if(qi){qi.oninput=function(){S.q=this.value;S.page=0;render()}}
 }
 function card(it){var g=get(it),s=eff(it);
-  return '<div class="card" data-ac="detail" data-v="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span></div></div>'}
+  var audChk = (S.mod==="aud") ? '<label class="audit-sel" onclick="event.stopPropagation()"><input type="checkbox" data-ac="audsel" data-id="'+esc(it.id)+'"'+((S.auditSel||{})[it.id]?" checked":"")+'> Incluir</label>' : "";
+  var valMark = g.validated ? '<span class="val-dot ok" title="Validada" style="margin-left:6px"></span>' : "";
+  return '<div class="card" data-ac="detail" data-v="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+valMark+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span>'+audChk+'</div></div>'}
 
 function openDetail(id){
   var it = S.data.find(function(i){return i.id===id});
@@ -66,6 +80,7 @@ function openDetail(id){
   var html = '<div class="mask" id="mask"><div class="modal"><div class="mh"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+'</h3></div><button class="close" data-ac="close">×</button></div><div class="mb">';
   html += '<div><h4>Fundamento</h4><p>'+esc(it.fund||"—")+'</p></div>';
   html += '<div><h4>Evidencia / Cómo materializar el cumplimiento</h4><p>'+esc(it.evid||"No especificada en el catálogo")+'</p></div>';
+  html += '<label class="val-box'+(g.validated?" checked":"")+'"><input type="checkbox" data-ac="val" data-id="'+esc(it.id)+'"'+(g.validated?" checked":"")+'> <span>'+(g.validated?"Evidencia validada — Cumple":"Marcar como validada (cumple con la evidencia)")+'</span></label>';
   html += '<div><h4>Periodicidad</h4><p>'+esc(it.per||"—")+'</p></div>';
   if(it.cond) html += '<div><h4>Condición / Notas</h4><p>'+esc(it.cond)+'</p></div>';
   html += '<div><h4>Estado actual</h4><p>'+esc(g.est||it.est)+'</p></div>';
@@ -82,6 +97,7 @@ document.addEventListener("click",function(e){
   var ac=b.dataset.ac,v=b.dataset.v;
   if(ac==="ld"){$("file").click()}
   else if(ac==="detail"){openDetail(v)}
+  else if(ac==="val"){var id=b.dataset.id;S.ed[id]=S.ed[id]||{};S.ed[id].validated=b.checked;save();render();var m=document.getElementById("mask");if(m)m.remove();openDetail(id)}
   else if(ac==="close"){var m=document.getElementById("mask");if(m)m.remove()}
   else if(ac==="reload"){S.data=[];localStorage.removeItem(KEY);S.page=0;autoLoad();toast("Actualizando...")}
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";S.page=0;render()}
@@ -92,7 +108,25 @@ document.addEventListener("click",function(e){
   else if(ac==="pg"){S.page=+v;render()}
   else if(ac==="theme"){var r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"":"dark"}
   else if(ac==="ro"){S.ro=!S.ro;save();render()}
+  else if(ac==="audsel"){var id=b.dataset.id;S.auditSel=S.auditSel||{};if(b.checked)S.auditSel[id]=1;else delete S.auditSel[id];save();render()}
+  else if(ac==="audselall"){S.auditSel=S.auditSel||{};var list=S.data;if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id).toLowerCase().indexOf(q)>-1})}list.slice(S.page*S.pageSize,(S.page+1)*S.pageSize).forEach(function(i){S.auditSel[i.id]=1});save();render()}
+  else if(ac==="audclear"){S.auditSel={};save();render()}
+  else if(ac==="audreport"){generateAuditReport()}
 });
+
+function generateAuditReport(){
+  var ids=Object.keys(S.auditSel||{});
+  if(!ids.length){toast("Selecciona obligaciones");return}
+  var items=S.data.filter(function(i){return S.auditSel[i.id]});
+  var html='<div class="mask" id="mask"><div class="modal" style="max-width:800px"><div class="mh"><div><h3>Reporte de Auditoría Interna</h3><p style="margin:4px 0 0;font-size:12px;color:var(--muted)">'+items.length+' obligaciones seleccionadas — '+new Date().toLocaleDateString("es-MX")+'</p></div><button class="close" data-ac="close">×</button></div><div class="mb">';
+  items.forEach(function(it){
+    var g=get(it);
+    html+='<div style="border-bottom:1px solid var(--line);padding:10px 0"><div style="display:flex;justify-content:space-between"><b>'+esc(it.id)+'</b><span class="b">'+esc(g.est)+'</span></div><div style="font-size:13px;margin:4px 0">'+esc(it.obl)+'</div><div style="font-size:12px;color:var(--muted)">Evidencia: '+esc(it.evid||"—")+'</div><div style="font-size:12px">'+(g.validated?"✓ Validada":"○ Pendiente de validar")+'</div></div>';
+  });
+  html+='</div><div style="padding:12px 18px;border-top:1px solid var(--line);text-align:right"><button class="btn" onclick="window.print()">Imprimir / PDF</button></div></div></div>';
+  document.body.insertAdjacentHTML("beforeend", html);
+}
+
 $("file").addEventListener("change",function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){parse(new Uint8Array(r.result))};r.readAsArrayBuffer(f);this.value=""});
 var CATALOGO_URL="https://raw.githubusercontent.com/maikeGalindo/compliance-normativo-mx/main/catalogo.json?t="+Date.now();
 function autoLoad(){
