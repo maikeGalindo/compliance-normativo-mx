@@ -1,4 +1,4 @@
-var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30,auditSel:{},audDept:"",audits:[],currentAudit:{}};
+var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30,auditSel:{},audDept:"",audits:[],currentAudit:{},auditFilterOnly:false,editingAudit:null};
 var ST=["Pendiente","Parcial","Cumple","No cumple","N/A"];
 function $(i){return document.getElementById(i)}
 function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -52,10 +52,14 @@ function render(){
     w.innerHTML='<div class="empty"><h2>Cargando catálogo...</h2><p>Si no carga en unos segundos, toca el botón.</p><button class="btn p" data-ac="reload">Actualizar catálogo</button><br><button class="btn" data-ac="ld">Cargar Excel manual</button></div>';return}
   var list;
   if(S.mod==="aud"){
-    list = S.data.slice();
-    if(S.audDept!=null && S.audDept!==""){
-      var di=+S.audDept;
-      list = list.filter(function(i){return i.rl[di]==="Sí"||i.rl[di]==="Apoyo"});
+    if(S.auditFilterOnly && S.auditSel){
+      list = S.data.filter(function(i){return S.auditSel[i.id]});
+    } else {
+      list = S.data.slice();
+      if(S.audDept!=null && S.audDept!==""){
+        var di=+S.audDept;
+        list = list.filter(function(i){return i.rl[di]==="Sí"||i.rl[di]==="Apoyo"});
+      }
     }
   } else if(S.mod==="fis"){
     // Fiscal: obligations typically reviewed by authorities/firms
@@ -86,13 +90,17 @@ function render(){
     var selCount=Object.keys(S.auditSel||{}).length;
     var deptOpts='<option value="">Todos los departamentos</option>';
     S.depts.forEach(function(d){deptOpts+='<option value="'+d.i+'"'+(String(S.audDept)===String(d.i)?" selected":"")+'>'+esc(d.n)+'</option>'});
-    var auditsHtml="";
+    var histHtml="";
     if(S.audits&&S.audits.length){
-      auditsHtml='<div style="font-size:12px;margin-top:6px;color:var(--muted)">Auditorías guardadas: ';
-      S.audits.slice(0,5).forEach(function(a){auditsHtml+='<button data-ac="loadaud" data-id="'+a.id+'" style="margin:0 4px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--soft);font-size:11px;cursor:pointer">'+a.date+' ('+a.items+')</button>'});
-      auditsHtml+='</div>';
+      histHtml='<div style="margin-top:10px;padding:10px;background:var(--soft);border-radius:10px"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Histórico de auditorías</div>';
+      S.audits.forEach(function(a){
+        var st=a.status||"activa";
+        histHtml+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><span>'+a.date+'</span><span style="color:var(--muted)">('+a.items+' obl.)</span><span class="badge '+(st==="cerrada"?"obs":"nuevo")+'">'+st+'</span><button data-ac="loadaud" data-id="'+a.id+'" style="padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:11px">Abrir / Editar</button></div>';
+      });
+      histHtml+='</div>';
     }
-    auditBar='<div class="audit-bar"><span style="font-size:13px;font-weight:600">Auditoría interna</span><select id="audDeptSel" onchange="S.audDept=this.value;S.page=0;render()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:12px">'+deptOpts+'</select><button data-ac="audselall">Seleccionar visibles</button><button data-ac="audclear">Limpiar</button><button class="p" data-ac="audreport"'+(selCount?" ":" disabled")+'>Generar reporte ('+selCount+')</button></div>'+auditsHtml;
+    var filterBtns = S.auditFilterOnly ? '<button data-ac="audshowall">Ver todas</button><button data-ac="audclose">Cerrar auditoría</button>' : '';
+    auditBar='<div class="audit-bar"><span style="font-size:13px;font-weight:600">Auditoría interna</span>'+(S.auditFilterOnly?'<span style="font-size:12px;color:var(--acc)">Editando auditoría</span>':'<select id="audDeptSel" onchange="S.audDept=this.value;S.page=0;render()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:12px">'+deptOpts+'</select>')+'<button data-ac="audselall">Seleccionar visibles</button><button data-ac="audclear">Limpiar</button><button class="p" data-ac="audreport"'+(selCount?" ":" disabled")+'>Generar reporte ('+selCount+')</button>'+filterBtns+'</div>'+histHtml;
   }
   w.innerHTML=auditBar+'<div class="row"><input class="search" id="q" placeholder="Buscar obligación..." value="'+esc(S.q)+'"><div class="seg"><button data-ac="f" data-v="ALL" class="'+(S.f==="ALL"?"on":"")+'">Todas</button><button data-ac="f" data-v="Pendiente" class="'+(S.f==="Pendiente"?"on":"")+'">Pendientes</button><button data-ac="f" data-v="Cumple" class="'+(S.f==="Cumple"?"on":"")+'">Cumple</button></div></div>'+pager+'<div class="grid">'+page.map(card).join("")+'</div>'+pager;
   var qi=$("q");if(qi){qi.oninput=function(){S.q=this.value;S.page=0;render()}}
@@ -135,7 +143,7 @@ document.addEventListener("click",function(e){
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";S.page=0;render()}
   else if(ac==="mat"){S.mat=v;S.page=0;render()}
   else if(ac==="mod"){S.mod=v;S.mat="";S.page=0;render()}
-  else if(ac==="menu"){S.menu=!S.menu;render();return}
+  else if(ac==="menu"){S.menu=!S.menu;menuJustOpened=true;render();return}
   else if(ac==="f"){S.f=v;S.page=0;render()}
   else if(ac==="pg"){S.page=+v;render()}
   else if(ac==="theme"){var r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"":"dark"}
@@ -143,7 +151,9 @@ document.addEventListener("click",function(e){
   else if(ac==="audsel"){var id=b.dataset.id;S.auditSel=S.auditSel||{};if(b.checked)S.auditSel[id]=1;else delete S.auditSel[id];save();render()}
   else if(ac==="audselall"){S.auditSel=S.auditSel||{};var list=S.data;if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id).toLowerCase().indexOf(q)>-1})}list.slice(S.page*S.pageSize,(S.page+1)*S.pageSize).forEach(function(i){S.auditSel[i.id]=1});save();render()}
   else if(ac==="audclear"){S.auditSel={};save();render()}
-  else if(ac==="loadaud"){var aid=b.dataset.id;var a=(S.audits||[]).find(function(x){return x.id===aid});if(a){S.auditSel=a.sel||{};S.currentAudit=a.data||{};toast("Auditoría cargada");render()}}
+  else if(ac==="loadaud"){var aid=b.dataset.id;var a=(S.audits||[]).find(function(x){return x.id===aid});if(a){S.auditSel=a.sel||{};S.currentAudit=a.data||{};S.auditFilterOnly=true;S.editingAudit=aid;toast("Auditoría cargada");render()}}
+  else if(ac==="audshowall"){S.auditFilterOnly=false;S.editingAudit=null;render()}
+  else if(ac==="audclose"){if(S.editingAudit){var a=S.audits.find(function(x){return x.id===S.editingAudit});if(a)a.status="cerrada";save()}S.auditFilterOnly=false;S.editingAudit=null;toast("Auditoría cerrada");render()}
   else if(ac==="audsave"){
     S.audits=S.audits||[];
     var ids=Object.keys(S.auditSel||{});
@@ -207,7 +217,9 @@ function autoLoad(){
       if(w)w.innerHTML='<div class="empty"><h2>No se pudo cargar</h2><p>'+esc(String(e))+'</p><button class="btn p" data-ac="reload">Reintentar</button></div>';
     });
 }
+var menuJustOpened=false;
 document.addEventListener("click",function(e){
+  if(menuJustOpened){menuJustOpened=false;return}
   if(S.menu && !e.target.closest(".gear") && !e.target.closest(".menu")){S.menu=false;render()}
 });
 load();render();autoLoad();
