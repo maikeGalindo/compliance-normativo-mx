@@ -1,4 +1,4 @@
-var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30,auditSel:{},audDept:""};
+var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30,auditSel:{},audDept:"",audits:[],currentAudit:{}};
 var ST=["Pendiente","Parcial","Cumple","No cumple","N/A"];
 function $(i){return document.getElementById(i)}
 function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
@@ -42,7 +42,7 @@ function side(){var h='<div class="brand"><div class="logo">⚖️</div><div><b>
   h+='<div class="sub"><button class="dep'+(S.mat==="__a"?" on":"")+'" data-ac="mat" data-v="__a">Apoyo a otras áreas</button></div>';
   var hasNew = S.data.some(function(i){return getStatus(i)==="nuevo"||getStatus(i)==="mod"});
   h+='<div class="lbl">Módulos</div><button class="dep'+(S.mod==="aud"?" on":"")+'" data-ac="mod" data-v="aud">Auditoría'+(hasNew?' <span class="mod-badge">nuevo</span>':'')+'</button><button class="dep'+(S.mod==="fis"?" on":"")+'" data-ac="mod" data-v="fis">Fiscal'+(hasNew?' <span class="mod-badge">nuevo</span>':'')+'</button>';
-  h+='<div class="gear"><button class="gb" data-ac="menu">⚙️</button><span class="rol">'+(S.ro?"Solo lectura":"Edición")+'</span></div>';
+  h+='<div class="gear"><button class="gb" data-ac="menu" onclick="event.stopPropagation()">⚙️</button><span class="rol">'+(S.ro?"Solo lectura":"Edición")+'</span></div>';
   if(S.menu)h+='<div class="menu"><button data-ac="reload">Actualizar catálogo</button><button data-ac="ld">Cargar Excel</button><button data-ac="theme">Tema</button><button data-ac="ro">'+(S.ro?"Habilitar edición":"Solo lectura")+'</button></div>';
   $("side").innerHTML=h}
 function render(){
@@ -85,8 +85,14 @@ function render(){
   if(S.mod==="aud"){
     var selCount=Object.keys(S.auditSel||{}).length;
     var deptOpts='<option value="">Todos los departamentos</option>';
-    S.depts.forEach(function(d){deptOpts+='<option value="'+d.i+'"'+(S.audDept===d.i?" selected":"")+'>'+esc(d.n)+'</option>'});
-    auditBar='<div class="audit-bar"><span style="font-size:13px;font-weight:600">Auditoría interna</span><select data-ac="auddept" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:12px">'+deptOpts+'</select><button data-ac="audselall">Seleccionar visibles</button><button data-ac="audclear">Limpiar</button><button class="p" data-ac="audreport"'+(selCount?" ":" disabled")+'>Generar reporte ('+selCount+')</button></div>';
+    S.depts.forEach(function(d){deptOpts+='<option value="'+d.i+'"'+(String(S.audDept)===String(d.i)?" selected":"")+'>'+esc(d.n)+'</option>'});
+    var auditsHtml="";
+    if(S.audits&&S.audits.length){
+      auditsHtml='<div style="font-size:12px;margin-top:6px;color:var(--muted)">Auditorías guardadas: ';
+      S.audits.slice(0,5).forEach(function(a){auditsHtml+='<button data-ac="loadaud" data-id="'+a.id+'" style="margin:0 4px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--soft);font-size:11px;cursor:pointer">'+a.date+' ('+a.items+')</button>'});
+      auditsHtml+='</div>';
+    }
+    auditBar='<div class="audit-bar"><span style="font-size:13px;font-weight:600">Auditoría interna</span><select id="audDeptSel" onchange="S.audDept=this.value;S.page=0;render()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:12px">'+deptOpts+'</select><button data-ac="audselall">Seleccionar visibles</button><button data-ac="audclear">Limpiar</button><button class="p" data-ac="audreport"'+(selCount?" ":" disabled")+'>Generar reporte ('+selCount+')</button></div>'+auditsHtml;
   }
   w.innerHTML=auditBar+'<div class="row"><input class="search" id="q" placeholder="Buscar obligación..." value="'+esc(S.q)+'"><div class="seg"><button data-ac="f" data-v="ALL" class="'+(S.f==="ALL"?"on":"")+'">Todas</button><button data-ac="f" data-v="Pendiente" class="'+(S.f==="Pendiente"?"on":"")+'">Pendientes</button><button data-ac="f" data-v="Cumple" class="'+(S.f==="Cumple"?"on":"")+'">Cumple</button></div></div>'+pager+'<div class="grid">'+page.map(card).join("")+'</div>'+pager;
   var qi=$("q");if(qi){qi.oninput=function(){S.q=this.value;S.page=0;render()}}
@@ -135,10 +141,19 @@ document.addEventListener("click",function(e){
   else if(ac==="theme"){var r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"":"dark"}
   else if(ac==="ro"){S.ro=!S.ro;save();render()}
   else if(ac==="audsel"){var id=b.dataset.id;S.auditSel=S.auditSel||{};if(b.checked)S.auditSel[id]=1;else delete S.auditSel[id];save();render()}
-  else if(ac==="auddept"){S.audDept=b.value;S.page=0;render()}
   else if(ac==="audselall"){S.auditSel=S.auditSel||{};var list=S.data;if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id).toLowerCase().indexOf(q)>-1})}list.slice(S.page*S.pageSize,(S.page+1)*S.pageSize).forEach(function(i){S.auditSel[i.id]=1});save();render()}
   else if(ac==="audclear"){S.auditSel={};save();render()}
-  else if(ac==="audsave"){toast("Auditoría guardada");var m=document.getElementById("mask");if(m)m.remove()}
+  else if(ac==="loadaud"){var aid=b.dataset.id;var a=(S.audits||[]).find(function(x){return x.id===aid});if(a){S.auditSel=a.sel||{};S.currentAudit=a.data||{};toast("Auditoría cargada");render()}}
+  else if(ac==="audsave"){
+    S.audits=S.audits||[];
+    var ids=Object.keys(S.auditSel||{});
+    S.audits.unshift({id:"AUD-"+Date.now(),date:new Date().toISOString().slice(0,10),items:ids.length,data:JSON.parse(JSON.stringify(S.currentAudit||{})),sel:JSON.parse(JSON.stringify(S.auditSel||{}))});
+    if(S.audits.length>20)S.audits.pop();
+    save();
+    toast("Auditoría guardada");
+    var m=document.getElementById("mask");if(m)m.remove();
+    render();
+  }
   else if(ac==="audreport"){generateAuditReport()}
 });
 
@@ -192,4 +207,7 @@ function autoLoad(){
       if(w)w.innerHTML='<div class="empty"><h2>No se pudo cargar</h2><p>'+esc(String(e))+'</p><button class="btn p" data-ac="reload">Reintentar</button></div>';
     });
 }
+document.addEventListener("click",function(e){
+  if(S.menu && !e.target.closest(".gear") && !e.target.closest(".menu")){S.menu=false;render()}
+});
 load();render();autoLoad();
