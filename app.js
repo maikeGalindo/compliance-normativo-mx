@@ -17,13 +17,31 @@ function build(cat,ctl,cfg,af){var dp=[],out=[],k;
   S.data=out;S.depts=dp;
   S.af=(af||[]).filter(function(r){return r[0]}).map(function(r){return {id:String(r[0]),bl:r[1],obl:r[2],pide:r[3],fund:r[4],per:r[5],area:r[6],fmt:r[7],est:r[8]||"Pendiente",resp:r[9]||"",fecha:(r[10]||"").toString().slice(0,10),enlace:r[11]||"",obs:r[12]||"",ap:"Sí",af:1}});
   if(!dp.some(function(d){return d.i===S.sel}))S.sel=-1}
+
+function getStatus(it){
+  var id = it.id || "";
+  if(id.indexOf("NOM035")===0) return "nuevo";
+  // Mark some 2026 updates as modificado
+  if(id.indexOf("RH-00")===0 || id.indexOf("PLD-")===0 || id.indexOf("FIS-")===0) return "mod";
+  // Check if marked obsolete in notes or by user
+  if(S.ed[id] && S.ed[id].obsolete) return "obs";
+  return "";
+}
+function statusBadge(st){
+  if(st==="nuevo") return '<span class="badge nuevo">Nuevo</span>';
+  if(st==="mod") return '<span class="badge mod">Modificado</span>';
+  if(st==="obs") return '<span class="badge obs">Obsoleto</span>';
+  return "";
+}
+
 function get(it){var e=S.ed[it.id]||{};return {est:e.est||it.est,resp:e.resp!=null?e.resp:it.resp,fecha:e.fecha!=null?e.fecha:it.fecha,enlace:e.enlace!=null?e.enlace:it.enlace,obs:e.obs!=null?e.obs:it.obs,validated:!!e.validated}}
 function eff(it){return it.ap==="No"?"N/A":get(it).est}
 function side(){var h='<div class="brand"><div class="logo">⚖️</div><div><b>Cumplimiento</b><small>Normativo MX</small></div></div><div class="lbl">Departamentos</div>';
   h+='<button class="dep'+(S.sel<0&&S.mod==="dep"?" on":"")+'" data-ac="sel" data-v="-1"><span>Todos</span><span class="n">'+S.data.length+'</span></button>';
   S.depts.forEach(function(d){var n=S.data.filter(function(i){return i.rl[d.i]==="Sí"}).length;h+='<button class="dep'+(S.sel===d.i&&S.mod==="dep"?" on":"")+'" data-ac="sel" data-v="'+d.i+'"><span>'+esc(d.n)+'</span><span class="n">'+n+'</span></button>'});
   h+='<div class="sub"><button class="dep'+(S.mat==="__a"?" on":"")+'" data-ac="mat" data-v="__a">Apoyo a otras áreas</button></div>';
-  h+='<div class="lbl">Módulos</div><button class="dep'+(S.mod==="aud"?" on":"")+'" data-ac="mod" data-v="aud">Auditoría</button><button class="dep'+(S.mod==="fis"?" on":"")+'" data-ac="mod" data-v="fis">Fiscal</button>';
+  var hasNew = S.data.some(function(i){return getStatus(i)==="nuevo"||getStatus(i)==="mod"});
+  h+='<div class="lbl">Módulos</div><button class="dep'+(S.mod==="aud"?" on":"")+'" data-ac="mod" data-v="aud">Auditoría'+(hasNew?' <span class="mod-badge">nuevo</span>':'')+'</button><button class="dep'+(S.mod==="fis"?" on":"")+'" data-ac="mod" data-v="fis">Fiscal'+(hasNew?' <span class="mod-badge">nuevo</span>':'')+'</button>';
   h+='<div class="gear"><button class="gb" data-ac="menu">⚙️</button><span class="rol">'+(S.ro?"Solo lectura":"Edición")+'</span></div>';
   if(S.menu)h+='<div class="menu"><button data-ac="reload">Actualizar catálogo</button><button data-ac="ld">Cargar Excel</button><button data-ac="theme">Tema</button><button data-ac="ro">'+(S.ro?"Habilitar edición":"Solo lectura")+'</button></div>';
   $("side").innerHTML=h}
@@ -38,7 +56,7 @@ function render(){
     list = S.data.slice();
   } else if(S.mod==="fis"){
     // Fiscal: obligations typically reviewed by authorities/firms
-    var fiscalKeywords = ["fiscal","impuesto","isr","iva","sat","declaracion","cfdi","comprobante","contable","dictamen","retencion","nomina","imss","infonavit","isn"];
+    var fiscalKeywords = ["fiscal","impuesto","isr","iva","sat","declaracion","cfdi","comprobante","contable","dictamen","retencion","nomina","imss","infonavit","isn","ieps","contabilidad electronica","balanza","catalogo de cuentas","diot","pagos provisionales","enteros","retenciones","ptu","aguinaldo","prima vacacional","subsidio","asimilados","regimen","rfc","curp","e.firma","opinion de cumplimiento","buro","32-d","art 69","art 69-b","efos","edos","devolucion","compensacion","acreditamiento"];
     list = S.data.filter(function(i){
       var t = (i.obl+" "+i.fund+" "+i.area).toLowerCase();
       return fiscalKeywords.some(function(k){return t.indexOf(k)>-1});
@@ -71,7 +89,8 @@ function render(){
 function card(it){var g=get(it),s=eff(it);
   var audChk = (S.mod==="aud") ? '<label class="audit-sel" onclick="event.stopPropagation()"><input type="checkbox" data-ac="audsel" data-id="'+esc(it.id)+'"'+((S.auditSel||{})[it.id]?" checked":"")+'> Incluir</label>' : "";
   var valMark = g.validated ? '<span class="val-dot ok" title="Validada" style="margin-left:6px"></span>' : "";
-  return '<div class="card" data-ac="detail" data-v="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+valMark+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span>'+audChk+'</div></div>'}
+  var st=getStatus(it);
+  return '<div class="card" data-ac="detail" data-v="'+esc(it.id)+'"><div class="top"><div><span class="code">'+esc(it.id)+'</span><h3>'+esc(it.obl)+statusBadge(st)+valMark+'</h3></div><span class="b">'+esc(s)+'</span></div><div class="fund"><small>Fundamento</small>'+esc(it.fund)+'</div><div class="meta"><span>'+(g.resp||"Sin responsable")+'</span><span>'+(g.fecha||"Sin fecha")+'</span>'+audChk+'</div></div>'}
 
 function openDetail(id){
   var it = S.data.find(function(i){return i.id===id});
@@ -84,6 +103,7 @@ function openDetail(id){
   html += '<div><h4>Periodicidad</h4><p>'+esc(it.per||"—")+'</p></div>';
   if(it.cond) html += '<div><h4>Condición / Notas</h4><p>'+esc(it.cond)+'</p></div>';
   html += '<div><h4>Estado actual</h4><p>'+esc(g.est||it.est)+'</p></div>';
+  html += '<div><button class="btn" data-ac="toggleobs" data-id="'+esc(it.id)+'" style="font-size:12px">'+(getStatus(it)==="obs"?"Quitar obsoleto":"Marcar como obsoleto")+'</button></div>';
   html += '<div><h4>Responsable</h4><p>'+esc(g.resp||"Sin asignar")+'</p></div>';
   html += '<div><h4>Fecha límite</h4><p>'+esc(g.fecha||"Sin fecha")+'</p></div>';
   if(g.enlace) html += '<div><h4>Enlace</h4><p><a href="'+esc(g.enlace)+'" target="_blank">'+esc(g.enlace)+'</a></p></div>';
@@ -98,6 +118,7 @@ document.addEventListener("click",function(e){
   if(ac==="ld"){$("file").click()}
   else if(ac==="detail"){openDetail(v)}
   else if(ac==="val"){var id=b.dataset.id;S.ed[id]=S.ed[id]||{};S.ed[id].validated=b.checked;save();render();var m=document.getElementById("mask");if(m)m.remove();openDetail(id)}
+  else if(ac==="toggleobs"){var id=b.dataset.id;S.ed[id]=S.ed[id]||{};S.ed[id].obsolete=!S.ed[id].obsolete;save();render();var m=document.getElementById("mask");if(m)m.remove();openDetail(id)}
   else if(ac==="close"){var m=document.getElementById("mask");if(m)m.remove()}
   else if(ac==="reload"){S.data=[];localStorage.removeItem(KEY);S.page=0;autoLoad();toast("Actualizando...")}
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";S.page=0;render()}
@@ -111,20 +132,41 @@ document.addEventListener("click",function(e){
   else if(ac==="audsel"){var id=b.dataset.id;S.auditSel=S.auditSel||{};if(b.checked)S.auditSel[id]=1;else delete S.auditSel[id];save();render()}
   else if(ac==="audselall"){S.auditSel=S.auditSel||{};var list=S.data;if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id).toLowerCase().indexOf(q)>-1})}list.slice(S.page*S.pageSize,(S.page+1)*S.pageSize).forEach(function(i){S.auditSel[i.id]=1});save();render()}
   else if(ac==="audclear"){S.auditSel={};save();render()}
+  else if(ac==="audsave"){toast("Auditoría guardada");var m=document.getElementById("mask");if(m)m.remove()}
   else if(ac==="audreport"){generateAuditReport()}
 });
 
 function generateAuditReport(){
   var ids=Object.keys(S.auditSel||{});
-  if(!ids.length){toast("Selecciona obligaciones");return}
+  if(!ids.length){toast("Selecciona obligaciones para auditar");return}
   var items=S.data.filter(function(i){return S.auditSel[i.id]});
-  var html='<div class="mask" id="mask"><div class="modal" style="max-width:800px"><div class="mh"><div><h3>Reporte de Auditoría Interna</h3><p style="margin:4px 0 0;font-size:12px;color:var(--muted)">'+items.length+' obligaciones seleccionadas — '+new Date().toLocaleDateString("es-MX")+'</p></div><button class="close" data-ac="close">×</button></div><div class="mb">';
+  S.currentAudit = S.currentAudit || {};
+  var html='<div class="mask" id="mask"><div class="modal" style="max-width:860px"><div class="mh"><div><h3>Auditoría Interna</h3><p style="margin:4px 0 0;font-size:12px;color:var(--muted)">'+items.length+' obligaciones — '+new Date().toLocaleDateString("es-MX")+'</p></div><button class="close" data-ac="close">×</button></div><div class="mb" id="auditBody">';
   items.forEach(function(it){
     var g=get(it);
-    html+='<div style="border-bottom:1px solid var(--line);padding:10px 0"><div style="display:flex;justify-content:space-between"><b>'+esc(it.id)+'</b><span class="b">'+esc(g.est)+'</span></div><div style="font-size:13px;margin:4px 0">'+esc(it.obl)+'</div><div style="font-size:12px;color:var(--muted)">Evidencia: '+esc(it.evid||"—")+'</div><div style="font-size:12px">'+(g.validated?"✓ Validada":"○ Pendiente de validar")+'</div></div>';
+    var a = S.currentAudit[it.id] || {};
+    html+='<div class="audit-item" data-id="'+esc(it.id)+'"><h4>'+esc(it.id)+' — '+esc(it.obl)+'</h4>';
+    html+='<div style="font-size:12px;color:var(--muted);margin-bottom:6px">Periodicidad: '+esc(it.per||"—")+' · Evidencia requerida: '+esc(it.evid||"—")+'</div>';
+    html+='<div class="audit-fields">';
+    html+='<div><label>Hallazgo</label><textarea data-field="hallazgo" data-id="'+esc(it.id)+'">'+esc(a.hallazgo||"")+'</textarea></div>';
+    html+='<div><label>Evidencia entregada</label><input type="text" data-field="evidencia" data-id="'+esc(it.id)+'" value="'+esc(a.evidencia||"")+'" placeholder="Descripción o nombre de archivo"></div>';
+    html+='<div><label>Responsable</label><input type="text" data-field="resp" data-id="'+esc(it.id)+'" value="'+esc(a.resp||g.resp||"")+'"></div>';
+    html+='<div><label>Fecha límite</label><input type="date" data-field="fecha" data-id="'+esc(it.id)+'" value="'+esc(a.fecha||g.fecha||"")+'"></div>';
+    html+='<div><label>Estado</label><select data-field="estado" data-id="'+esc(it.id)+'"><option'+(a.estado==="Pendiente"?" selected":"")+'>Pendiente</option><option'+(a.estado==="Cumple"?" selected":"")+'>Cumple</option><option'+(a.estado==="No cumple"?" selected":"")+'>No cumple</option><option'+(a.estado==="Parcial"?" selected":"")+'>Parcial</option></select></div>';
+    html+='<div><label>Archivo (nombre)</label><input type="file" data-field="file" data-id="'+esc(it.id)+'" style="font-size:11px"></div>';
+    html+='</div></div>';
   });
-  html+='</div><div style="padding:12px 18px;border-top:1px solid var(--line);text-align:right"><button class="btn" onclick="window.print()">Imprimir / PDF</button></div></div></div>';
+  html+='</div><div style="padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px"><button class="btn" data-ac="audsave">Guardar auditoría</button><button class="btn p" onclick="window.print()">Imprimir / PDF</button></div></div></div>';
   document.body.insertAdjacentHTML("beforeend", html);
+  // Bind field changes
+  document.querySelectorAll("#auditBody [data-field]").forEach(function(el){
+    el.addEventListener("change", function(){
+      var id=this.dataset.id, field=this.dataset.field;
+      S.currentAudit[id]=S.currentAudit[id]||{};
+      if(field==="file"){S.currentAudit[id].fileName=this.files[0]?this.files[0].name:""}
+      else S.currentAudit[id][field]=this.value;
+    });
+  });
 }
 
 $("file").addEventListener("change",function(){var f=this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){parse(new Uint8Array(r.result))};r.readAsArrayBuffer(f);this.value=""});

@@ -103,3 +103,18 @@ h1{margin:0;font-size:21px}header p{margin:2px 0 0;color:var(--muted);font-size:
 .audit-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 .audit-bar button{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:12px}
 .audit-bar button.p{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* Status badges */
+.badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;margin-left:6px;text-transform:uppercase;letter-spacing:.03em}
+.badge.nuevo{background:#dbeafe;color:#1d4ed8}
+.badge.mod{background:#fef3c7;color:#92400e}
+.badge.obs{background:#fee2e2;color:#991b1b}
+.mod-badge{font-size:9px;background:#dbeafe;color:#1d4ed8;padding:1px 5px;border-radius:99px;margin-left:4px;font-weight:700}
+
+/* Audit working form */
+.audit-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.audit-item h4{margin:0 0 6px;font-size:13px}
+.audit-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.audit-fields label{font-size:11px;color:var(--muted);display:block}
+.audit-fields input,.audit-fields textarea,.audit-fields select{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:12px}
+.audit-fields textarea{min-height:50px;resize:vertical}
