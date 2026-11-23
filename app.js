@@ -1,9 +1,9 @@
-var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:30,auditSel:{},audDept:"",audits:[],currentAudit:{},auditFilterOnly:false,editingAudit:null};
+var KEY="cg_v4",S={data:[],depts:[],af:[],sel:-1,mat:"",mod:"dep",q:"",f:"ALL",na:false,ed:{},ro:false,on:false,upd:"",por:"",menu:false,page:0,pageSize:36,auditSel:{},audDept:"",audits:[],currentAudit:{},auditFilterOnly:false,editingAudit:null};
 var ST=["Pendiente","Parcial","Cumple","No cumple","N/A"];
 function $(i){return document.getElementById(i)}
 function esc(t){return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||"{}");["data","depts","af","ed","upd"].forEach(function(k){if(o[k])S[k]=o[k]});S.ro=!!o.ro;S.on=!!o.on;S.por=localStorage.getItem("cg_por")||""}catch(e){}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({data:S.data,depts:S.depts,af:S.af,ed:S.ed,upd:S.upd,ro:S.ro,on:S.on}))}catch(e){}}
+function load(){try{var o=JSON.parse(localStorage.getItem(KEY)||"{}");["data","depts","af","ed","upd","audits","auditSel","currentAudit"].forEach(function(k){if(o[k])S[k]=o[k]});S.ro=!!o.ro;S.on=!!o.on;S.por=localStorage.getItem("cg_por")||""}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({data:S.data,depts:S.depts,af:S.af,ed:S.ed,upd:S.upd,ro:S.ro,on:S.on,audits:S.audits,auditSel:S.auditSel,currentAudit:S.currentAudit}))}catch(e){}}
 function toast(m){var d=document.createElement("div");d.className="toast";d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2800)}
 function loadXLSX(cb){if(window.XLSX)return cb();var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=cb;document.head.appendChild(s)}
 function parse(buf){loadXLSX(function(){var wb=XLSX.read(buf,{type:"array",cellDates:true}),W=wb.Sheets;
@@ -95,7 +95,7 @@ function render(){
       histHtml='<div style="margin-top:10px;padding:10px;background:var(--soft);border-radius:10px"><div style="font-size:12px;font-weight:700;margin-bottom:6px">Histórico de auditorías</div>';
       S.audits.forEach(function(a){
         var st=a.status||"activa";
-        histHtml+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><span>'+a.date+'</span><span style="color:var(--muted)">('+a.items+' obl.)</span><span class="badge '+(st==="cerrada"?"obs":"nuevo")+'">'+st+'</span><button data-ac="loadaud" data-id="'+a.id+'" style="padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:11px">Abrir / Editar</button></div>';
+        histHtml+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><b>'+esc(a.name||"Auditoría")+'</b><span style="color:var(--muted)">'+a.date+' ('+a.items+')</span><span class="badge '+(st==="cerrada"?"obs":"nuevo")+'">'+st+'</span><button data-ac="loadaud" data-id="'+a.id+'" style="padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:11px">Abrir</button><button data-ac="renameaud" data-id="'+a.id+'" style="padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:11px">Renombrar</button></div>';
       });
       histHtml+='</div>';
     }
@@ -143,7 +143,7 @@ document.addEventListener("click",function(e){
   else if(ac==="sel"){S.sel=+v;S.mat="";S.mod="dep";S.page=0;render()}
   else if(ac==="mat"){S.mat=v;S.page=0;render()}
   else if(ac==="mod"){S.mod=v;S.mat="";S.page=0;render()}
-  else if(ac==="menu"){S.menu=!S.menu;menuJustOpened=true;render();return}
+  else if(ac==="menu"){e.stopPropagation();S.menu=!S.menu;render();return}
   else if(ac==="f"){S.f=v;S.page=0;render()}
   else if(ac==="pg"){S.page=+v;render()}
   else if(ac==="theme"){var r=document.documentElement;r.dataset.theme=r.dataset.theme==="dark"?"":"dark"}
@@ -152,12 +152,14 @@ document.addEventListener("click",function(e){
   else if(ac==="audselall"){S.auditSel=S.auditSel||{};var list=S.data;if(S.q){var q=S.q.toLowerCase();list=list.filter(function(i){return (i.obl+" "+i.id).toLowerCase().indexOf(q)>-1})}list.slice(S.page*S.pageSize,(S.page+1)*S.pageSize).forEach(function(i){S.auditSel[i.id]=1});save();render()}
   else if(ac==="audclear"){S.auditSel={};save();render()}
   else if(ac==="loadaud"){var aid=b.dataset.id;var a=(S.audits||[]).find(function(x){return x.id===aid});if(a){S.auditSel=a.sel||{};S.currentAudit=a.data||{};S.auditFilterOnly=true;S.editingAudit=aid;toast("Auditoría cargada");render()}}
+  else if(ac==="renameaud"){var aid=b.dataset.id;var a=(S.audits||[]).find(function(x){return x.id===aid});if(a){var n=prompt("Nuevo nombre:",a.name||"");if(n){a.name=n;save();render()}}}
   else if(ac==="audshowall"){S.auditFilterOnly=false;S.editingAudit=null;render()}
   else if(ac==="audclose"){if(S.editingAudit){var a=S.audits.find(function(x){return x.id===S.editingAudit});if(a)a.status="cerrada";save()}S.auditFilterOnly=false;S.editingAudit=null;toast("Auditoría cerrada");render()}
   else if(ac==="audsave"){
     S.audits=S.audits||[];
     var ids=Object.keys(S.auditSel||{});
-    S.audits.unshift({id:"AUD-"+Date.now(),date:new Date().toISOString().slice(0,10),items:ids.length,data:JSON.parse(JSON.stringify(S.currentAudit||{})),sel:JSON.parse(JSON.stringify(S.auditSel||{}))});
+    var name=prompt("Nombre de la auditoría:","Auditoría "+new Date().toLocaleDateString("es-MX"))||"Auditoría";
+    S.audits.unshift({id:"AUD-"+Date.now(),name:name,date:new Date().toISOString().slice(0,10),items:ids.length,status:"activa",data:JSON.parse(JSON.stringify(S.currentAudit||{})),sel:JSON.parse(JSON.stringify(S.auditSel||{}))});
     if(S.audits.length>20)S.audits.pop();
     save();
     toast("Auditoría guardada");
@@ -217,9 +219,7 @@ function autoLoad(){
       if(w)w.innerHTML='<div class="empty"><h2>No se pudo cargar</h2><p>'+esc(String(e))+'</p><button class="btn p" data-ac="reload">Reintentar</button></div>';
     });
 }
-var menuJustOpened=false;
 document.addEventListener("click",function(e){
-  if(menuJustOpened){menuJustOpened=false;return}
   if(S.menu && !e.target.closest(".gear") && !e.target.closest(".menu")){S.menu=false;render()}
 });
 load();render();autoLoad();
