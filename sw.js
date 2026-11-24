@@ -1,7 +1,8 @@
-const CACHE='compliance-mx-v3';
-self.addEventListener('install',e=>self.skipWaiting());
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{
-  if(e.request.method!=='GET')return;
-  e.respondWith(fetch(e.request).then(r=>{if(r.ok){const c=r.clone();caches.open(CACHE).then(ca=>ca.put(e.request,c))}return r}).catch(()=>caches.match(e.request)));
-});
+// Service worker de limpieza: la app ya no usa PWA/offline.
+// Borra cachés viejos y se desregistra para que nadie siga viendo la versión rota.
+self.addEventListener('install',function(){self.skipWaiting()});
+self.addEventListener('activate',function(e){e.waitUntil(
+  caches.keys().then(function(ks){return Promise.all(ks.map(function(k){return caches.delete(k)}))})
+  .then(function(){return self.registration.unregister()})
+  .then(function(){return self.clients.matchAll()})
+  .then(function(cs){cs.forEach(function(c){c.navigate(c.url)})}))});
